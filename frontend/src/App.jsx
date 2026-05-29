@@ -7,6 +7,9 @@ import Register from './pages/Register';
 import BookDetail from './pages/BookDetail';
 import Cart from './pages/Cart';
 import OrderHistory from './pages/OrderHistory';
+import AdminLayout from './pages/admin/AdminLayout';
+import ManageBooks from './pages/admin/ManageBooks';
+import ManageOrders from './pages/admin/ManageOrders';
 
 function App() {
     return (
@@ -19,6 +22,14 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/books/:id" element={<BookDetail />} />
+                    <Route path="/admin" element={
+                        <ProtectedRoute requireAdmin={true}>
+                            <AdminLayout />
+                        </ProtectedRoute>
+                    }>
+                        <Route path="books" element={<ManageBooks />} />
+                        <Route path="orders" element={<ManageOrders />} />
+                    </Route>
 
                     {/* Protected — cần đăng nhập */}
                     <Route path="/cart" element={

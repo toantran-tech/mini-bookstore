@@ -95,4 +95,17 @@ public class OrderServiceImpl implements OrderService {
             return response;
         }).toList();
     }
+
+    @Override
+    public List<Order> getAllOrdersForAdmin() {
+       return orderRepository.findAll();
+    }
+
+    @Override
+    public void updateOrderStatus(Long orderId, String newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with ID: " + orderId));
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+    }
 }

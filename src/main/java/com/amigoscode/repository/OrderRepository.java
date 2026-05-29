@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserId(Long userId);
-    List<Order> findByUserUsername(String username); // Tìm theo username từ JWT
+    List<Order> findByUserUsername(String username);
 }
 

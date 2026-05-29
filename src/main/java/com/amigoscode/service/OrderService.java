@@ -9,5 +9,7 @@ import java.util.List;
 public interface OrderService  {
     Order placeOrder(String username, OrderRequest order);
     List<Order> findByUserId(Long userId);
-    List<OrderHistoryResponse> getMyOrderHistory(String username); // Lấy lịch sử đơn hàng theo JWT (bảo mật)
+    List<OrderHistoryResponse> getMyOrderHistory(String username);
+    List<Order> getAllOrdersForAdmin();
+    void updateOrderStatus(Long orderId, String newStatus);
 }
