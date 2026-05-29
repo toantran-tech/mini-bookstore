@@ -74,8 +74,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderHistoryResponse> getOrderHistory(Long userId) {
-        List<Order> orders = orderRepository.findByUserId(userId);
+    public List<OrderHistoryResponse> getMyOrderHistory(String username) {
+        List<Order> orders = orderRepository.findByUserUsername(username);
         return orders.stream().map(order -> {
             OrderHistoryResponse response = new OrderHistoryResponse();
             response.setId(order.getId());
@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
             // Map list chi tiết đơn hàng
             List<OrderItemResponse> items = order.getOrderDetails().stream()
                     .map(detail -> new OrderItemResponse(
-                            detail.getBook().getTitle(), // Lấy tên sách
+                            detail.getBook().getTitle(),
                             detail.getQuantity(),
                             detail.getPrice()
                     )).toList();

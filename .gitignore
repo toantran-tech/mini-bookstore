@@ -1,6 +1,10 @@
 HELP.md
 .gradle
 build/
+target/
+frontend/node_modules/
+frontend/.env.local
+
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
