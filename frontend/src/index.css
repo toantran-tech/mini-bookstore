@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* Font mặc định toàn app */
+* {
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: #0f172a;
+    /* slate-900 — dark mode */
+    color: #f1f5f9;
+    /* slate-100 */
+}
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
