@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -35,4 +38,20 @@ public class Book {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    // Số lượng đã bán — tăng mỗi khi có order
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer soldCount = 0;
+
+    // Số lượng lượt xem — tăng khi user mở trang chi tiết
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer viewCount = 0;
+
+    // Nhiều ảnh, lưu dạng comma-separated URL: "url1,url2,url3"
+    @Column(columnDefinition = "TEXT")
+    private String imageUrls;
+
+    // Thời điểm tạo — tự động set, dùng để sort "mới nhất"
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 }

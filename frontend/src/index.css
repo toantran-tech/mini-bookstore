@@ -1,6 +1,6 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* Font mặc định toàn app */
 * {
     font-family: 'Inter', sans-serif;
     box-sizing: border-box;
@@ -8,13 +8,26 @@
 
 body {
     margin: 0;
-    background-color: #0f172a;
-    /* slate-900 — dark mode */
-    color: #f1f5f9;
-    /* slate-100 */
+    background-color: #f8fafc; /* gray-50 — light mode như BTVN_04 */
+    color: #1e293b;             /* slate-800 */
 }
 
-/* Smooth scroll */
 html {
     scroll-behavior: smooth;
+}
+
+/* Shimmer animation cho skeleton */
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.animate-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Swiper thumbs — active border */
+.thumbs-swiper .swiper-slide-thumb-active img {
+    border-color: #6366f1 !important;
 }

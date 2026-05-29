@@ -7,52 +7,63 @@ import com.amigoscode.service.BookService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class BookServiceImpl implements BookService {
+
     private final BookRepository bookRepository;
+
     public BookServiceImpl(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
     }
+
     @Override
     public Book addBook(Book book) {
-        if(book.getPrice() < 0){
+        if (book.getPrice() < 0) {
             throw new IllegalArgumentException("Price cannot be negative");
         }
         return bookRepository.save(book);
     }
+
     @Override
     public List<BookResponse> getAllBooks() {
-        List<Book> books = bookRepository.findAll();
-        return books.stream()
+        return bookRepository.findAll().stream()
                 .map(this::mapToBookResponse)
                 .toList();
     }
 
     @Override
-    public Page<BookResponse> getAllBooks(String search, int page, int size) {
-        Pageable pageable = PageRequest.of(page,size);
+    public Page<BookResponse> getAllBooks(
+            String search,
+            String categoryName,
+            Double minPrice,
+            Double maxPrice,
+            String sortBy,
+            int page,
+            int size
+    ) {
+        // Xác định sort direction
+        Sort sort = switch (sortBy == null ? "" : sortBy) {
+            case "newest"     -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case "bestseller" -> Sort.by(Sort.Direction.DESC, "soldCount");
+            case "price_asc"  -> Sort.by(Sort.Direction.ASC,  "price");
+            case "price_desc" -> Sort.by(Sort.Direction.DESC, "price");
+            default           -> Sort.by(Sort.Direction.DESC, "id");
+        };
 
-        Page<Book> bookPage = bookRepository.findByTitleContainingIgnoreCase(search,pageable);
-        return bookPage.map(book -> {
-            BookResponse response = new BookResponse();
-            response.setId(book.getId());
-            response.setTitle(book.getTitle());
-            response.setAuthor(book.getAuthor());
-            response.setPrice(book.getPrice());
-            response.setStock(book.getStock());
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-            if (book.getCategory() != null) {
-                response.setCategoryName(book.getCategory().getName());
-            }
+        // Chuẩn hóa params
+        String keyword      = (search == null || search.isBlank()) ? null : search;
+        String catName      = (categoryName == null || categoryName.isBlank()) ? null : categoryName;
 
-            return response;
-         });
-
-
+        return bookRepository
+                .findWithFilters(keyword, catName, minPrice, maxPrice, pageable)
+                .map(this::mapToBookResponse);
     }
 
     @Override
@@ -64,7 +75,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResponse updateBook(Long id, BookResponse bookResponse) {
-Book book =bookRepository.findById(id)
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + id));
 
         book.setTitle(bookResponse.getTitle());
@@ -73,8 +84,12 @@ Book book =bookRepository.findById(id)
         book.setStock(bookResponse.getStock());
         book.setImageUrl(bookResponse.getImageUrl());
         book.setDescription(bookResponse.getDescription());
-        Book updatedBook = bookRepository.save(book);
-        return mapToBookResponse(updatedBook);  }
+        if (bookResponse.getImageUrls() != null) {
+            book.setImageUrls(bookResponse.getImageUrls());
+        }
+
+        return mapToBookResponse(bookRepository.save(book));
+    }
 
     @Override
     public void deleteBookById(Long id) {
@@ -82,6 +97,43 @@ Book book =bookRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + id));
         bookRepository.delete(book);
     }
+
+    @Override
+    public List<BookResponse> getSimilarBooks(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + id));
+
+        if (book.getCategory() == null) return List.of();
+
+        Pageable top4 = PageRequest.of(0, 4);
+        return bookRepository
+                .findSimilarBooks(book.getCategory().getId(), id, top4)
+                .stream()
+                .map(this::mapToBookResponse)
+                .toList();
+    }
+
+    @Override
+    public java.util.Map<String, List<BookResponse>> getTopBooks() {
+        List<BookResponse> bestsellers = bookRepository.findTop10ByOrderBySoldCountDesc()
+                .stream().map(this::mapToBookResponse).toList();
+        List<BookResponse> mostViewed = bookRepository.findTop10ByOrderByViewCountDesc()
+                .stream().map(this::mapToBookResponse).toList();
+        return java.util.Map.of(
+                "bestsellers", bestsellers,
+                "mostViewed", mostViewed
+        );
+    }
+
+    @Override
+    public void incrementViewCount(Long id) {
+        bookRepository.findById(id).ifPresent(book -> {
+            book.setViewCount((book.getViewCount() == null ? 0 : book.getViewCount()) + 1);
+            bookRepository.save(book);
+        });
+    }
+
+    // ===================== HELPER =====================
 
     private BookResponse mapToBookResponse(Book book) {
         BookResponse response = new BookResponse();
@@ -92,6 +144,10 @@ Book book =bookRepository.findById(id)
         response.setStock(book.getStock());
         response.setImageUrl(book.getImageUrl());
         response.setDescription(book.getDescription());
+        response.setSoldCount(book.getSoldCount() != null ? book.getSoldCount() : 0);
+        response.setViewCount(book.getViewCount() != null ? book.getViewCount() : 0);
+        response.setImageUrls(book.getImageUrls());
+        response.setCreatedAt(book.getCreatedAt());
 
         if (book.getCategory() != null) {
             response.setCategoryName(book.getCategory().getName());
@@ -99,4 +155,3 @@ Book book =bookRepository.findById(id)
         return response;
     }
 }
-

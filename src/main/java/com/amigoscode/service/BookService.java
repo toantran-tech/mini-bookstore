@@ -3,16 +3,34 @@ package com.amigoscode.service;
 import com.amigoscode.Entity.Book;
 import com.amigoscode.dto.BookResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface BookService {
     Book addBook(Book book);
     List<BookResponse> getAllBooks();
-    Page<BookResponse> getAllBooks(String search, int page, int size);
+
+    // Tìm kiếm + lọc đa điều kiện
+    Page<BookResponse> getAllBooks(
+            String search,
+            String categoryName,
+            Double minPrice,
+            Double maxPrice,
+            String sortBy,   // "newest" | "bestseller" | "price_asc" | "price_desc"
+            int page,
+            int size
+    );
 
     BookResponse getBookById(Long id);
     BookResponse updateBook(Long id, BookResponse bookResponse);
     void deleteBookById(Long id);
+
+    // Sản phẩm tương tự (cùng category)
+    List<BookResponse> getSimilarBooks(Long id);
+
+    // Top 10 bán chạy + xem nhiều
+    java.util.Map<String, List<BookResponse>> getTopBooks();
+
+    // Tăng lượt xem khi user mở trang chi tiết
+    void incrementViewCount(Long id);
 }

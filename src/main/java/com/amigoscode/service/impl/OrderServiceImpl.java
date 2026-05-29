@@ -45,6 +45,8 @@ public class OrderServiceImpl implements OrderService {
                 throw new IllegalArgumentException("Not enough stock for book: " + book.getTitle());
             }
             book.setStock(book.getStock() - itemRequest.getQuantity());
+            // Tăng số lượng bán được
+            book.setSoldCount((book.getSoldCount() == null ? 0 : book.getSoldCount()) + itemRequest.getQuantity());
             bookRepository.save(book);
 
 

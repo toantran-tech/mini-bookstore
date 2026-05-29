@@ -10,6 +10,7 @@ import OrderHistory from './pages/OrderHistory';
 import AdminLayout from './pages/admin/AdminLayout';
 import ManageBooks from './pages/admin/ManageBooks';
 import ManageOrders from './pages/admin/ManageOrders';
+import TopBooks from './pages/TopBooks';
 
 function App() {
     return (
@@ -17,8 +18,9 @@ function App() {
             <Navbar />
             <main>
                 <Routes>
-                    {/* Public */}
+                    {}
                     <Route path="/" element={<Home />} />
+                    <Route path="/top" element={<TopBooks />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/books/:id" element={<BookDetail />} />
