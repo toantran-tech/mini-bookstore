@@ -4,18 +4,23 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
+
 @Component
 public class JwtUtil {
-    private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
-    private Key getSignInKey() {;
-        byte[] keyBytes = SECRET_KEY.getBytes();
+    // Đọc từ application.properties → đọc từ env var JWT_SECRET trên Railway
+    // Nếu không có env var thì dùng fallback (chỉ dùng khi chạy local)
+    @Value("${jwt.secret:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}")
+    private String secretKey;
+
+    private Key getSignInKey() {
+        byte[] keyBytes = secretKey.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

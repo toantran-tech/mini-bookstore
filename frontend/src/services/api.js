@@ -1,9 +1,11 @@
 import axios from 'axios';
 
-// Tạo một instance (bản sao) của axios với URL gốc của Backend
+// Khi build trên Vercel: VITE_API_URL = https://your-app.railway.app/api
+// Khi chạy local:        VITE_API_URL không có → fallback localhost:8080
 const api = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
 });
+
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');

@@ -2,30 +2,68 @@ package com.amigoscode;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * OpenApiConfig — cấu hình Swagger UI cho toàn project.
+ *
+ * Sau khi chạy server, truy cập: http://localhost:8080/swagger-ui/index.html
+ *
+ * Có 2 phần chính:
+ *  1. Info        — thông tin project (title, version, mô tả) hiển thị trên đầu trang Swagger
+ *  2. Security    — cho phép nhập JWT token vào nút "Authorize" để test API cần xác thực
+ */
 @Configuration
 public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";
+
         return new OpenAPI()
-                // Yêu cầu ổ khóa cho toàn bộ API
+                // ── 1. Thông tin project ─────────────────────────────────
+                .info(new Info()
+                        .title("Mini Bookstore API")
+                        .description(
+                                "RESTful API backend cho hệ thống bán sách trực tuyến.\n\n" +
+                                "**Tính năng chính:**\n" +
+                                "- Xác thực JWT + phân quyền RBAC (Admin/Member)\n" +
+                                "- Quản lý sách, danh mục, đơn hàng\n" +
+                                "- Tìm kiếm & lọc đa điều kiện với phân trang\n" +
+                                "- Thống kê Top 10 sách bán chạy & xem nhiều nhất\n\n" +
+                                "**Hướng dẫn test API cần xác thực:**\n" +
+                                "1. Gọi `POST /api/auth/login` để lấy token\n" +
+                                "2. Nhấn nút **Authorize** (🔒) ở góc phải\n" +
+                                "3. Dán token vào ô `Value` rồi nhấn Authorize"
+                        )
+                        .version("1.0.0")
+                        .contact(new Contact()
+                                .name("Toan Tran")
+                                .url("https://github.com/toantran00/mini-bookstore")
+                        )
+                )
+
+                // ── 2. Cấu hình xác thực JWT ─────────────────────────────
+                // Mục đích: Hiện nút "Authorize" trên Swagger UI để nhập JWT token
+                // khi test các API cần đăng nhập (như tạo đơn hàng, xóa sách)
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(
                         new Components()
-                                // Cấu hình chuẩn JWT Bearer
                                 .addSecuritySchemes(securitySchemeName,
                                         new SecurityScheme()
                                                 .name(securitySchemeName)
+                                                // Type HTTP + scheme "bearer" = chuẩn JWT
                                                 .type(SecurityScheme.Type.HTTP)
                                                 .scheme("bearer")
                                                 .bearerFormat("JWT")
+                                                .description("Dán JWT token vào đây (không cần thêm 'Bearer ')")
                                 )
                 );
     }
 }
+
