@@ -1,5 +1,3 @@
-# Vercel config — chỉ cần file này ở thư mục frontend/
-
 {
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
