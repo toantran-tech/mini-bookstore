@@ -20,8 +20,6 @@ public class Order {
 
     private LocalDateTime orderDate;
 
-    private double totalAmount;
-
     private String status;
 
     @ManyToOne
@@ -31,6 +29,12 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;
 
-
+    private String shippingAddress;
+    private String shippingMethod;
+    private String couponCode;
+    private double discountAmount;
+    private double subtotal;
+    private double totalAmount;
+    private double shippingFee;
 
 }

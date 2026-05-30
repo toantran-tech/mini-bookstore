@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import BookDetail from './pages/BookDetail';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderSuccess from './pages/OrderSuccess';
 import OrderHistory from './pages/OrderHistory';
 import AdminLayout from './pages/admin/AdminLayout';
 import ManageBooks from './pages/admin/ManageBooks';
@@ -36,6 +38,12 @@ function App() {
                     {/* Protected — cần đăng nhập */}
                     <Route path="/cart" element={
                         <ProtectedRoute><Cart /></ProtectedRoute>
+                    } />
+                    <Route path="/checkout" element={
+                        <ProtectedRoute><Checkout /></ProtectedRoute>
+                    } />
+                    <Route path="/order-success" element={
+                        <ProtectedRoute><OrderSuccess /></ProtectedRoute>
                     } />
                     <Route path="/orders" element={
                         <ProtectedRoute><OrderHistory /></ProtectedRoute>

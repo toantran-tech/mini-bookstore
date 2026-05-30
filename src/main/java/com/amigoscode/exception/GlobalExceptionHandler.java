@@ -17,45 +17,44 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 errorMessage,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleException(Exception ex) {
         ApiError error = new ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Lỗi hệ thống"+ex.getMessage(),
-                LocalDateTime.now()
-        );
+                "Lỗi hệ thống" + ex.getMessage(),
+                LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 "Không thể xóa vì:  " + ex.getMostSpecificCause().getMessage(),
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
         ApiError error = new ApiError(
-                HttpStatus.UNAUTHORIZED.value(), // Mã 401
-                "Sai tài khoản hoặc mật khẩu rồi fen ơi!",
-                LocalDateTime.now()
-        );
+                HttpStatus.UNAUTHORIZED.value(),
+                "Sai tài khoản hoặc mật khẩu!",
+                LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 }

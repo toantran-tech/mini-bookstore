@@ -1,61 +1,70 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import api from '../services/api';
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
-    // Đọc giỏ hàng từ localStorage khi khởi động
-    const [items, setItems] = useState(() => {
-        const saved = localStorage.getItem('cart');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [cart, setCart] = useState(null); // { cartId, items, totalPrice, totalItems }
+    const [loading, setLoading] = useState(false);
 
-    // Mỗi khi items thay đổi → lưu vào localStorage
+    const isLoggedIn = () => !!localStorage.getItem('token');
+
+    // Fetch giỏ hàng từ DB
+    const fetchCart = useCallback(async () => {
+        if (!isLoggedIn()) { setCart(null); return; }
+        try {
+            setLoading(true);
+            const res = await api.get('/cart');
+            setCart(res.data);
+        } catch {
+            setCart(null);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(items));
-    }, [items]);
+        fetchCart();
+    }, [fetchCart]);
 
-    // Thêm sách vào giỏ (nếu đã có thì tăng số lượng)
-    const addItem = (book) => {
-        setItems(prev => {
-            const existing = prev.find(i => i.bookId === book.id);
-            if (existing) {
-                return prev.map(i =>
-                    i.bookId === book.id
-                        ? { ...i, quantity: i.quantity + 1 }
-                        : i
-                );
-            }
-            return [...prev, { bookId: book.id, title: book.title, price: book.price, quantity: 1 }];
-        });
+    // Thêm sách vào giỏ
+    const addItem = async (bookId, quantity = 1) => {
+        if (!isLoggedIn()) return;
+        const res = await api.post(`/cart/add?bookId=${bookId}&quantity=${quantity}`);
+        setCart(res.data);
     };
 
-    // Xóa 1 sách khỏi giỏ
-    const removeItem = (bookId) => {
-        setItems(prev => prev.filter(i => i.bookId !== bookId));
-    };
-
-    // Thay đổi số lượng
-    const updateQuantity = (bookId, quantity) => {
+    // Cập nhật số lượng
+    const updateQuantity = async (cartItemId, quantity) => {
         if (quantity <= 0) {
-            removeItem(bookId);
+            await removeItem(cartItemId);
             return;
         }
-        setItems(prev =>
-            prev.map(i => i.bookId === bookId ? { ...i, quantity } : i)
-        );
+        const res = await api.put(`/cart/item/${cartItemId}?quantity=${quantity}`);
+        setCart(res.data);
     };
 
-    // Xóa toàn bộ giỏ hàng (sau khi đặt hàng thành công)
-    const clearCart = () => setItems([]);
+    // Xóa 1 món
+    const removeItem = async (cartItemId) => {
+        await api.delete(`/cart/item/${cartItemId}`);
+        await fetchCart();
+    };
 
-    // Tổng số lượng (hiển thị badge trên icon giỏ hàng)
-    const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
+    // Xóa toàn bộ giỏ
+    const clearCart = async () => {
+        await api.delete('/cart/clear');
+        await fetchCart();
+    };
 
-    // Tổng tiền
-    const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const items = cart?.items || [];
+    const totalItems = cart?.totalItems || 0;
+    const totalPrice = cart?.totalPrice || 0;
 
     return (
-        <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice }}>
+        <CartContext.Provider value={{
+            cart, items, totalItems, totalPrice, loading,
+            addItem, updateQuantity, removeItem, clearCart, fetchCart
+        }}>
             {children}
         </CartContext.Provider>
     );

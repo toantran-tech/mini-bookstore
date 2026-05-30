@@ -44,22 +44,21 @@ public class BookServiceImpl implements BookService {
             Double maxPrice,
             String sortBy,
             int page,
-            int size
-    ) {
+            int size) {
         // Xác định sort direction
         Sort sort = switch (sortBy == null ? "" : sortBy) {
-            case "newest"     -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case "newest" -> Sort.by(Sort.Direction.DESC, "createdAt");
             case "bestseller" -> Sort.by(Sort.Direction.DESC, "soldCount");
-            case "price_asc"  -> Sort.by(Sort.Direction.ASC,  "price");
+            case "price_asc" -> Sort.by(Sort.Direction.ASC, "price");
             case "price_desc" -> Sort.by(Sort.Direction.DESC, "price");
-            default           -> Sort.by(Sort.Direction.DESC, "id");
+            default -> Sort.by(Sort.Direction.DESC, "id");
         };
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
         // Chuẩn hóa params
-        String keyword      = (search == null || search.isBlank()) ? null : search;
-        String catName      = (categoryName == null || categoryName.isBlank()) ? null : categoryName;
+        String keyword = (search == null || search.isBlank()) ? null : search;
+        String catName = (categoryName == null || categoryName.isBlank()) ? null : categoryName;
 
         return bookRepository
                 .findWithFilters(keyword, catName, minPrice, maxPrice, pageable)
@@ -103,7 +102,8 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + id));
 
-        if (book.getCategory() == null) return List.of();
+        if (book.getCategory() == null)
+            return List.of();
 
         Pageable top4 = PageRequest.of(0, 4);
         return bookRepository
@@ -121,8 +121,7 @@ public class BookServiceImpl implements BookService {
                 .stream().map(this::mapToBookResponse).toList();
         return java.util.Map.of(
                 "bestsellers", bestsellers,
-                "mostViewed", mostViewed
-        );
+                "mostViewed", mostViewed);
     }
 
     @Override

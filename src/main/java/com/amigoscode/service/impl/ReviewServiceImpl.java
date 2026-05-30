@@ -1,0 +1,95 @@
+package com.amigoscode.service.impl;
+
+import com.amigoscode.Entity.Book;
+import com.amigoscode.Entity.Review;
+import com.amigoscode.Entity.User;
+import com.amigoscode.dto.ReviewRequest;
+import com.amigoscode.dto.ReviewResponse;
+import com.amigoscode.repository.BookRepository;
+import com.amigoscode.repository.ReviewRepository;
+import com.amigoscode.repository.UserRepository;
+import com.amigoscode.service.ReviewService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ReviewServiceImpl implements ReviewService {
+
+    private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+    private final BookRepository bookRepository;
+
+    @Override
+    public ReviewResponse createReview(String username, ReviewRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        Book book = bookRepository.findById(request.getBookId())
+                .orElseThrow(() -> new RuntimeException("Sách không tồn tại"));
+
+        // Kiểm tra rating hợp lệ
+        if (request.getRating() < 1 || request.getRating() > 5) {
+            throw new IllegalArgumentException("Rating phải từ 1 đến 5");
+        }
+
+        // Kiểm tra đã review chưa (1 user chỉ review 1 cuốn sách 1 lần)
+        if (reviewRepository.existsByUserIdAndBookId(user.getId(), book.getId())) {
+            throw new IllegalStateException("Bạn đã đánh giá cuốn sách này rồi!");
+        }
+
+        Review review = new Review();
+        review.setUser(user);
+        review.setBook(book);
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+
+        Review saved = reviewRepository.save(review);
+        return toResponse(saved);
+    }
+
+    @Override
+    public List<ReviewResponse> getReviewsByBook(Long bookId) {
+        return reviewRepository.findByBookIdOrderByCreatedAtDesc(bookId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    public void deleteReview(String username, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review không tồn tại"));
+
+        // Chỉ owner hoặc admin mới được xóa
+        if (!review.getUser().getUsername().equals(username)) {
+            throw new SecurityException("Bạn không có quyền xóa review này!");
+        }
+
+        reviewRepository.delete(review);
+    }
+
+    @Override
+    public Double getAverageRating(Long bookId) {
+        Double avg = reviewRepository.findAverageRatingByBookId(bookId);
+        return avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0; // Làm tròn 1 chữ số thập phân
+    }
+
+    @Override
+    public long countReviews(Long bookId) {
+        return reviewRepository.countByBookId(bookId);
+    }
+
+    // ===== HELPER =====
+    private ReviewResponse toResponse(Review review) {
+        return new ReviewResponse(
+                review.getId(),
+                review.getUser().getUsername(),
+                review.getRating(),
+                review.getComment(),
+                review.getCreatedAt()
+        );
+    }
+}

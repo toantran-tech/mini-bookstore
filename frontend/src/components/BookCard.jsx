@@ -9,10 +9,10 @@ export default function BookCard({ book }) {
 
     const inCart = items.some(i => i.bookId === book.id);
 
-    const handleAddToCart = (e) => {
+    const handleAddToCart = async (e) => {
         e.preventDefault();
         if (!token) { navigate('/login'); return; }
-        addItem(book);
+        await addItem(book.id, 1);
     };
 
     return (

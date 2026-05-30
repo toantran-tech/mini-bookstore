@@ -29,13 +29,13 @@ import static org.mockito.Mockito.*;
  * Unit Test cho BookServiceImpl.
  *
  * Công cụ dùng:
- *  - JUnit 5       : @Test, @BeforeEach, @DisplayName
- *  - Mockito       : @Mock, @InjectMocks, when/verify
- *  - AssertJ       : assertThat — cú pháp đọc tự nhiên hơn JUnit assert
+ * - JUnit 5 : @Test, @BeforeEach, @DisplayName
+ * - Mockito : @Mock, @InjectMocks, when/verify
+ * - AssertJ : assertThat — cú pháp đọc tự nhiên hơn JUnit assert
  *
  * Nguyên tắc: KHÔNG kết nối DB thật. Mọi thứ đều được "mock" (giả lập).
  */
-@ExtendWith(MockitoExtension.class)         // ← Bật Mockito trong JUnit 5
+@ExtendWith(MockitoExtension.class) // ← Bật Mockito trong JUnit 5
 class BookServiceImplTest {
 
     // ── @Mock: giả lập BookRepository, KHÔNG gọi DB thật ───────────────────
@@ -70,7 +70,7 @@ class BookServiceImplTest {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  addBook
+    // addBook
     // ════════════════════════════════════════════════════════════════════════
 
     @Test
@@ -85,7 +85,7 @@ class BookServiceImplTest {
         // THEN – kiểm tra kết quả
         assertThat(result).isNotNull();
         assertThat(result.getTitle()).isEqualTo("Clean Code");
-        verify(bookRepository, times(1)).save(sampleBook);  // đảm bảo save() được gọi đúng 1 lần
+        verify(bookRepository, times(1)).save(sampleBook); // đảm bảo save() được gọi đúng 1 lần
     }
 
     @Test
@@ -98,11 +98,11 @@ class BookServiceImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Price cannot be negative");
 
-        verify(bookRepository, never()).save(any());  // đảm bảo save() KHÔNG được gọi
+        verify(bookRepository, never()).save(any()); // đảm bảo save() KHÔNG được gọi
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  getBookById
+    // getBookById
     // ════════════════════════════════════════════════════════════════════════
 
     @Test
@@ -132,7 +132,7 @@ class BookServiceImplTest {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  getAllBooks (no filter — simple)
+    // getAllBooks (no filter — simple)
     // ════════════════════════════════════════════════════════════════════════
 
     @Test
@@ -157,7 +157,7 @@ class BookServiceImplTest {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  getAllBooks (có filter + pagination)
+    // getAllBooks (có filter + pagination)
     // ════════════════════════════════════════════════════════════════════════
 
     @Test
@@ -169,8 +169,7 @@ class BookServiceImplTest {
                 .thenReturn(fakePage);
 
         Page<BookResponse> result = bookService.getAllBooks(
-                "Clean", "Fiction", 10.0, 50.0, "bestseller", 0, 10
-        );
+                "Clean", "Fiction", 10.0, 50.0, "bestseller", 0, 10);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).getTitle()).isEqualTo("Clean Code");
@@ -183,14 +182,13 @@ class BookServiceImplTest {
                 .thenReturn(new PageImpl<>(List.of(sampleBook)));
 
         Page<BookResponse> result = bookService.getAllBooks(
-                null, null, null, null, "newest", 0, 5
-        );
+                null, null, null, null, "newest", 0, 5);
 
         assertThat(result).isNotNull();
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  updateBook
+    // updateBook
     // ════════════════════════════════════════════════════════════════════════
 
     @Test
@@ -224,7 +222,7 @@ class BookServiceImplTest {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  deleteBookById
+    // deleteBookById
     // ════════════════════════════════════════════════════════════════════════
 
     @Test
@@ -250,7 +248,7 @@ class BookServiceImplTest {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  getSimilarBooks
+    // getSimilarBooks
     // ════════════════════════════════════════════════════════════════════════
 
     @Test
@@ -299,7 +297,7 @@ class BookServiceImplTest {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  getTopBooks
+    // getTopBooks
     // ════════════════════════════════════════════════════════════════════════
 
     @Test
@@ -329,7 +327,7 @@ class BookServiceImplTest {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  incrementViewCount
+    // incrementViewCount
     // ════════════════════════════════════════════════════════════════════════
 
     @Test

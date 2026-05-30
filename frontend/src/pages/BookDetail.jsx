@@ -4,6 +4,7 @@ import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import BookCard from '../components/BookCard';
+import ReviewSection from '../components/ReviewSection';
 
 // Swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -47,11 +48,16 @@ export default function BookDetail() {
         return urls.length > 0 ? urls : null;
     };
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         if (!token) { navigate('/login'); return; }
-        for (let i = 0; i < quantity; i++) addItem(book);
-        setAddedMsg(`✅ Đã thêm ${quantity} cuốn vào giỏ!`);
-        setTimeout(() => setAddedMsg(''), 2500);
+        try {
+            await addItem(book.id, quantity);
+            setAddedMsg(`✅ Đã thêm ${quantity} cuốn vào giỏ!`);
+            setTimeout(() => setAddedMsg(''), 2500);
+        } catch {
+            setAddedMsg('❌ Thêm vào giỏ thất bại!');
+            setTimeout(() => setAddedMsg(''), 2500);
+        }
     };
 
     const stockStatus = (stock) => {
@@ -261,6 +267,10 @@ export default function BookDetail() {
                         </div>
                     </section>
                 )}
+
+                {/* ===== REVIEW & RATING ===== */}
+                <ReviewSection bookId={book.id} />
+
             </div>
         </div>
     );
