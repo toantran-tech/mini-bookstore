@@ -4,6 +4,7 @@ export default function AdminLayout() {
     const location = useLocation();
 
     const navItems = [
+        { path: '/admin', label: '📊 Dashboard', exact: true },
         { path: '/admin/books', label: '📚 Quản lý Sách' },
         { path: '/admin/orders', label: '📋 Quản lý Đơn hàng' },
     ];
@@ -17,10 +18,15 @@ export default function AdminLayout() {
                     <Link
                         key={item.path}
                         to={item.path}
-                        className={`px-4 py-3 rounded-lg text-sm font-medium transition ${location.pathname === item.path
-                                ? 'bg-amber-500 text-white'
-                                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                            }`}
+                        className={`px-4 py-3 rounded-lg text-sm font-medium transition ${
+                            item.exact
+                                ? location.pathname === item.path
+                                    ? 'bg-amber-500 text-white'
+                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                : location.pathname.startsWith(item.path)
+                                    ? 'bg-amber-500 text-white'
+                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        }`}
                     >
                         {item.label}
                     </Link>

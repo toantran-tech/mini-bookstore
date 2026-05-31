@@ -12,6 +12,7 @@ import OrderHistory from './pages/OrderHistory';
 import AdminLayout from './pages/admin/AdminLayout';
 import ManageBooks from './pages/admin/ManageBooks';
 import ManageOrders from './pages/admin/ManageOrders';
+import Dashboard from './pages/admin/Dashboard';
 import TopBooks from './pages/TopBooks';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
                             <AdminLayout />
                         </ProtectedRoute>
                     }>
+                        <Route index element={<Dashboard />} />
                         <Route path="books" element={<ManageBooks />} />
                         <Route path="orders" element={<ManageOrders />} />
                     </Route>

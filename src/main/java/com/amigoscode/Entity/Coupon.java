@@ -15,18 +15,18 @@ public class Coupon {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String code; // Mã giảm giá (VD: "SALE20", "FREESHIP")
+    private String code; 
 
-    private String discountType; // "PERCENT" hoặc "FIXED"
-    private double discountValue; // 20 (tức 20%) hoặc 50000 (tức -50k)
+    private String discountType; 
+    private double discountValue; 
 
-    private double minOrderValue; // Đơn tối thiểu để áp mã (VD: 100000đ)
-    private double maxDiscount; // Giảm tối đa (VD: PERCENT 50% nhưng max 100k)
+    private double minOrderValue; 
+    private double maxDiscount; 
 
-    private int maxUsage; // Số lần dùng tối đa
-    private int usedCount; // Đã dùng bao nhiêu lần
+    private int maxUsage; 
+    private int usedCount; 
 
-    private LocalDateTime expiresAt; // Hạn sử dụng
+    private LocalDateTime expiresAt; 
 
-    private boolean active; // Admin bật/tắt mã này
+    private boolean active; 
 }

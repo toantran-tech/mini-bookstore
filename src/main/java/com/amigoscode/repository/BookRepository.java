@@ -29,16 +29,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             Pageable pageable
     );
 
-    // Tốp 10 bán chạy nhất
     List<Book> findTop10ByOrderBySoldCountDesc();
 
-    // Tốp 10 xem nhiều nhất
     List<Book> findTop10ByOrderByViewCountDesc();
 
-    // Sản phẩm tương tự: cùng category, khác id, lấy 4 cuốn
     @Query("SELECT b FROM Book b WHERE b.category.id = :categoryId AND b.id <> :excludeId ORDER BY b.soldCount DESC")
     List<Book> findSimilarBooks(@Param("categoryId") Long categoryId, @Param("excludeId") Long excludeId, Pageable pageable);
 
-    // Lọc theo tên + category (vẫn giữ cho tương thích)
     Page<Book> findByTitleContainingIgnoreCaseAndCategoryName(String title, String categoryName, Pageable pageable);
 }

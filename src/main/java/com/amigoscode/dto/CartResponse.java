@@ -7,6 +7,6 @@ import java.util.List;
 public class CartResponse {
     private Long cartId;
     private List<CartItemResponse> items;
-    private Double totalPrice; // Tổng cộng toàn bộ giỏ hàng
-    private Integer totalItems; // Tổng số lượng sản phẩm
-}
+    private Double totalPrice; 
+    private Integer totalItems;
+} 
