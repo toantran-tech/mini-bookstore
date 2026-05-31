@@ -10,22 +10,22 @@ export default function AdminLayout() {
     ];
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-gray-50">
             {/* Sidebar */}
-            <aside className="w-56 bg-slate-900 border-r border-slate-700 p-4 flex flex-col gap-2">
-                <p className="text-slate-500 text-xs uppercase tracking-widest font-semibold mb-4">Admin Panel</p>
+            <aside className="w-56 bg-white border-r border-gray-200 p-4 flex flex-col gap-2 shadow-sm">
+                <p className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-4 px-2">Admin Panel</p>
                 {navItems.map(item => (
                     <Link
                         key={item.path}
                         to={item.path}
-                        className={`px-4 py-3 rounded-lg text-sm font-medium transition ${
+                        className={`px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                             item.exact
                                 ? location.pathname === item.path
-                                    ? 'bg-amber-500 text-white'
-                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
+                                    : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
                                 : location.pathname.startsWith(item.path)
-                                    ? 'bg-amber-500 text-white'
-                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
+                                    : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
                         }`}
                     >
                         {item.label}

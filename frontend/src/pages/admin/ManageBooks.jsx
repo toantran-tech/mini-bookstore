@@ -68,78 +68,149 @@ export default function ManageBooks() {
     };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-white">📚 Quản lý Sách</h1>
-                <button onClick={openAdd} className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold transition">
-                    + Thêm sách
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Quản lý Sách</h1>
+                    <p className="text-gray-500 text-sm mt-1 font-medium">Thêm, sửa, xóa các đầu sách trong cửa hàng</p>
+                </div>
+                <button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition shadow-md shadow-indigo-200 flex items-center gap-2">
+                    <span className="text-lg">+</span> Thêm sách mới
                 </button>
             </div>
 
             {loading ? (
-                <div className="text-amber-400 animate-pulse">Đang tải...</div>
+                <div className="flex items-center justify-center h-48">
+                    <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                </div>
             ) : (
-                <div className="overflow-x-auto rounded-xl border border-slate-700">
-                    <table className="w-full text-sm">
-                        <thead className="bg-slate-800 text-slate-400 uppercase text-xs">
-                            <tr>
-                                <th className="px-4 py-3 text-left">Tên sách</th>
-                                <th className="px-4 py-3 text-left">Tác giả</th>
-                                <th className="px-4 py-3 text-left">Giá</th>
-                                <th className="px-4 py-3 text-left">Tồn kho</th>
-                                <th className="px-4 py-3 text-left">Thể loại</th>
-                                <th className="px-4 py-3 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {books.map(book => (
-                                <tr key={book.id} className="border-t border-slate-700 hover:bg-slate-800/50 transition">
-                                    <td className="px-4 py-3 text-white font-medium max-w-xs truncate">{book.title}</td>
-                                    <td className="px-4 py-3 text-slate-300">{book.author}</td>
-                                    <td className="px-4 py-3 text-amber-400 font-semibold">{book.price?.toLocaleString('vi-VN')}đ</td>
-                                    <td className="px-4 py-3 text-slate-300">{book.stock}</td>
-                                    <td className="px-4 py-3 text-slate-400">{book.categoryName || '—'}</td>
-                                    <td className="px-4 py-3 text-center flex gap-2 justify-center">
-                                        <button onClick={() => openEdit(book)} className="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg transition">Sửa</button>
-                                        <button onClick={() => handleDelete(book.id)} className="text-xs bg-red-500/20 hover:bg-red-500/40 text-red-400 px-3 py-1 rounded-lg transition">Xóa</button>
-                                    </td>
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="bg-gray-50 text-gray-400 uppercase text-xs font-black tracking-wider border-b border-gray-100">
+                                <tr>
+                                    <th className="px-6 py-4 text-left">Tên sách</th>
+                                    <th className="px-6 py-4 text-left">Tác giả</th>
+                                    <th className="px-6 py-4 text-left">Giá</th>
+                                    <th className="px-6 py-4 text-left">Tồn kho</th>
+                                    <th className="px-6 py-4 text-left">Thể loại</th>
+                                    <th className="px-6 py-4 text-center">Thao tác</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {books.map(book => (
+                                    <tr key={book.id} className="hover:bg-indigo-50/50 transition">
+                                        <td className="px-6 py-4 text-gray-900 font-bold max-w-xs truncate">{book.title}</td>
+                                        <td className="px-6 py-4 text-gray-500 font-medium">{book.author}</td>
+                                        <td className="px-6 py-4 text-indigo-600 font-black">{book.price?.toLocaleString('vi-VN')}đ</td>
+                                        <td className="px-6 py-4 text-gray-500 font-medium">
+                                            <span className={`px-2 py-1 rounded-md text-xs font-bold ${book.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                {book.stock} cuốn
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-500 font-medium">{book.categoryName || '—'}</td>
+                                        <td className="px-6 py-4 text-center flex gap-2 justify-center">
+                                            <button onClick={() => openEdit(book)} className="text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-lg transition">Sửa</button>
+                                            <button onClick={() => handleDelete(book.id)} className="text-xs font-bold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg transition">Xóa</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {books.length === 0 && (
+                                    <tr>
+                                        <td colSpan="6" className="px-6 py-8 text-center text-gray-400 font-medium">Chưa có sách nào.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
             {/* Modal thêm/sửa */}
             {showModal && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                    <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg p-6">
-                        <h2 className="text-xl font-bold text-white mb-5">{editingBook ? 'Sửa sách' : 'Thêm sách mới'}</h2>
-                        <form onSubmit={handleSave} className="flex flex-col gap-4">
-                            {[
-                                { name: 'title', label: 'Tên sách', required: true },
-                                { name: 'author', label: 'Tác giả', required: true },
-                                { name: 'price', label: 'Giá (VNĐ)', type: 'number', required: true },
-                                { name: 'stock', label: 'Tồn kho', type: 'number', required: true },
-                                { name: 'categoryName', label: 'Thể loại' },
-                                { name: 'imageUrl', label: 'URL ảnh bìa' },
-                                { name: 'description', label: 'Mô tả' },
-                            ].map(field => (
-                                <div key={field.name}>
-                                    <label className="block text-slate-300 text-sm mb-1">{field.label}</label>
+                <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white border border-gray-100 rounded-3xl w-full max-w-xl p-8 shadow-2xl">
+                        <h2 className="text-2xl font-black text-gray-900 mb-6">{editingBook ? 'Sửa thông tin sách' : 'Thêm sách mới'}</h2>
+                        <form onSubmit={handleSave} className="flex flex-col gap-5">
+                            <div className="grid grid-cols-2 gap-5">
+                                <div className="col-span-2">
+                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">Tên sách</label>
                                     <input
-                                        type={field.type || 'text'}
-                                        className="w-full bg-slate-700 border border-slate-600 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                        value={form[field.name]}
-                                        onChange={e => setForm({ ...form, [field.name]: e.target.value })}
-                                        required={field.required}
+                                        type="text"
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                                        value={form.title}
+                                        onChange={e => setForm({ ...form, title: e.target.value })}
+                                        required
+                                        placeholder="Nhập tên sách..."
                                     />
                                 </div>
-                            ))}
-                            <div className="flex gap-3 mt-2">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg transition">Hủy</button>
-                                <button type="submit" disabled={saving} className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white py-2 rounded-lg font-semibold transition">
-                                    {saving ? 'Đang lưu...' : 'Lưu'}
+                                <div>
+                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">Tác giả</label>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                                        value={form.author}
+                                        onChange={e => setForm({ ...form, author: e.target.value })}
+                                        required
+                                        placeholder="Nhập tên tác giả..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">Thể loại</label>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                                        value={form.categoryName}
+                                        onChange={e => setForm({ ...form, categoryName: e.target.value })}
+                                        placeholder="VD: Thiếu nhi"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">Giá (VNĐ)</label>
+                                    <input
+                                        type="number"
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                                        value={form.price}
+                                        onChange={e => setForm({ ...form, price: e.target.value })}
+                                        required
+                                        placeholder="0"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">Tồn kho</label>
+                                    <input
+                                        type="number"
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                                        value={form.stock}
+                                        onChange={e => setForm({ ...form, stock: e.target.value })}
+                                        required
+                                        placeholder="0"
+                                    />
+                                </div>
+                                <div className="col-span-2">
+                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">URL Ảnh bìa</label>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                                        value={form.imageUrl}
+                                        onChange={e => setForm({ ...form, imageUrl: e.target.value })}
+                                        placeholder="https://..."
+                                    />
+                                </div>
+                                <div className="col-span-2">
+                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">Mô tả chi tiết</label>
+                                    <textarea
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition h-24 resize-none"
+                                        value={form.description}
+                                        onChange={e => setForm({ ...form, description: e.target.value })}
+                                        placeholder="Nhập mô tả sách..."
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-4 mt-4">
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold transition">Hủy</button>
+                                <button type="submit" disabled={saving} className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-3 rounded-xl font-bold shadow-md shadow-indigo-200 transition">
+                                    {saving ? 'Đang lưu...' : (editingBook ? 'Cập nhật sách' : 'Thêm sách')}
                                 </button>
                             </div>
                         </form>
