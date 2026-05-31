@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Component
 public class JwtUtil {
@@ -24,9 +25,15 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username) {
+    public String generateToken(UserDetails userDetails) {
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .orElse("ROLE_USER");
+
         return Jwts.builder()
-                .setSubject(username)
+                .claim("role", role)
+                .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 3600 * 1000 * 24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
