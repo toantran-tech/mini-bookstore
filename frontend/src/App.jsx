@@ -8,7 +8,7 @@ import BookDetail from './pages/BookDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
-import OrderHistory from './pages/OrderHistory';
+import Profile from './pages/Profile';
 import AdminLayout from './pages/admin/AdminLayout';
 import ManageBooks from './pages/admin/ManageBooks';
 import ManageOrders from './pages/admin/ManageOrders';
@@ -47,8 +47,8 @@ function App() {
                     <Route path="/order-success" element={
                         <ProtectedRoute><OrderSuccess /></ProtectedRoute>
                     } />
-                    <Route path="/orders" element={
-                        <ProtectedRoute><OrderHistory /></ProtectedRoute>
+                    <Route path="/profile" element={
+                        <ProtectedRoute><Profile /></ProtectedRoute>
                     } />
                 </Routes>
             </main>

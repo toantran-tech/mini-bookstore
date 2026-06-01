@@ -42,7 +42,7 @@ export default function Navbar() {
                                         </span>
                                     )}
                                 </Link>
-                                <Link to="/orders" className="text-sm font-semibold text-gray-600 hover:text-indigo-600 transition">
+                                <Link to="/profile?tab=orders" className="text-sm font-semibold text-gray-600 hover:text-indigo-600 transition">
                                     Đơn hàng
                                 </Link>
                             </>
@@ -58,12 +58,12 @@ export default function Navbar() {
                     <div className="flex items-center gap-3">
                         {user ? (
                             <>
-                                <div className="hidden sm:flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                                <Link to="/profile?tab=info" className="hidden sm:flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded-lg transition">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
                                         {user.username?.charAt(0).toUpperCase()}
                                     </div>
-                                    <span className="text-sm font-medium text-gray-700">{user.username}</span>
-                                </div>
+                                    <span className="text-sm font-bold text-gray-700">{user.username}</span>
+                                </Link>
                                 <button onClick={handleLogout}
                                     className="text-xs px-3 py-1.5 rounded-lg border border-rose-200 text-rose-500 hover:bg-rose-50 font-semibold transition">
                                     Đăng xuất

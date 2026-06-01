@@ -31,14 +31,23 @@ public class User implements UserDetails {
 
     private String role;
 
+    private String fullName;
+    private String phone;
+    private String address;
+
+    @Column(columnDefinition = "LONGTEXT")
+    private String avatarUrl;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
     }
 
-    // (Lưu ý: Nếu dùng @Data của Lombok thì nó tự sinh ra getUsername() và getPassword() rồi,
+    // (Lưu ý: Nếu dùng @Data của Lombok thì nó tự sinh ra getUsername() và
+    // getPassword() rồi,
     // fen không cần viết lại nữa, trừ khi tên biến của fen đặt khác).
 
     // 2. Tài khoản có bị hết hạn không? -> Trả về true (Không)
