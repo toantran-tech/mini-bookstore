@@ -61,6 +61,9 @@ export default function Profile() {
     const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
     const [savingPassword, setSavingPassword] = useState(false);
 
+    // Modal thông báo thành công
+    const [successModal, setSuccessModal] = useState({ show: false, message: '', onClose: null });
+
     // Lịch sử đơn hàng
     const [orders, setOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
@@ -107,7 +110,7 @@ export default function Profile() {
                 address: profile.address,
                 avatarUrl: profile.avatarUrl
             });
-            alert('Cập nhật thông tin thành công!');
+            setSuccessModal({ show: true, message: 'Cập nhật thông tin thành công!' });
         } catch (err) {
             alert('Lỗi cập nhật thông tin!');
         } finally {
@@ -126,9 +129,14 @@ export default function Profile() {
                 oldPassword: passwordData.oldPassword,
                 newPassword: passwordData.newPassword
             });
-            alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
-            logout();
-            navigate('/login');
+            setSuccessModal({
+                show: true, 
+                message: 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.',
+                onClose: () => {
+                    logout();
+                    navigate('/login');
+                }
+            });
         } catch (err) {
             alert(err.response?.data?.message || 'Lỗi đổi mật khẩu!');
         } finally {
@@ -408,6 +416,28 @@ export default function Profile() {
                     </div>
                 </div>
             </div>
+
+            {/* Success Modal Overlay */}
+            {successModal.show && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center transform scale-100 transition-transform">
+                        <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                            ✓
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Thành công!</h3>
+                        <p className="text-gray-500 mb-6">{successModal.message}</p>
+                        <button 
+                            onClick={() => {
+                                setSuccessModal({ show: false, message: '', onClose: null });
+                                if (successModal.onClose) successModal.onClose();
+                            }}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition"
+                        >
+                            Đóng
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
