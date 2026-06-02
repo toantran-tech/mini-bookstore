@@ -10,4 +10,5 @@ public interface ReviewService {
     void deleteReview(String username, Long reviewId);
     Double getAverageRating(Long bookId);
     long countReviews(Long bookId);
+    boolean canReview(String username, Long bookId);
 }

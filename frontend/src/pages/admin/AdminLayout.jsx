@@ -7,6 +7,7 @@ export default function AdminLayout() {
         { path: '/admin', label: '📊 Dashboard', exact: true },
         { path: '/admin/books', label: '📚 Quản lý Sách' },
         { path: '/admin/orders', label: '📋 Quản lý Đơn hàng' },
+        { path: '/admin/coupons', label: '🎁 Mã Giảm Giá' },
     ];
 
     return (

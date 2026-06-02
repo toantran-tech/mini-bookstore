@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +72,47 @@ public class CouponServiceImpl implements CouponService {
         res.setDiscountAmount(discount);
         res.setFinalTotal(request.getOrderSubtotal() - discount);
         return res;
+    }
+
+    @Override
+    public List<Coupon> getAllCoupons() {
+        return couponRepository.findAll();
+    }
+
+    @Override
+    public void createCoupon(Coupon coupon) {
+        couponRepository.save(coupon);
+    }
+
+    @Override
+    public void deleteCouponById(Long id) {
+        Coupon coupon = couponRepository.findById(id).orElse(null);
+        if (coupon != null) {
+            couponRepository.delete(coupon);
+        } else {
+            throw new IllegalArgumentException("Không tìm thấy coupon với ID: " + id);
+        }
+    }
+
+    @Override
+    public void updateCoupon(Long id, Coupon updatedCoupon) {
+        Coupon coupon = couponRepository.findById(id).orElse(null);
+        if (coupon != null) {
+            // Cập nhật các thuộc tính của coupon
+            coupon.setCode(updatedCoupon.getCode());
+            coupon.setDiscountType(updatedCoupon.getDiscountType());
+            coupon.setDiscountValue(updatedCoupon.getDiscountValue());
+            coupon.setMaxDiscount(updatedCoupon.getMaxDiscount());
+            coupon.setMinOrderValue(updatedCoupon.getMinOrderValue());
+            coupon.setMaxUsage(updatedCoupon.getMaxUsage());
+            coupon.setUsedCount(updatedCoupon.getUsedCount());
+            coupon.setActive(updatedCoupon.isActive());
+            coupon.setExpiresAt(updatedCoupon.getExpiresAt());
+
+            couponRepository.save(coupon);
+        } else {
+            throw new IllegalArgumentException("Không tìm thấy coupon với ID: " + id);
+        }
     }
 
     // Helper trả về response lỗi

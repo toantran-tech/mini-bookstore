@@ -24,9 +24,8 @@ function StarPicker({ value, onChange }) {
                     onMouseEnter={() => setHover(s)}
                     onMouseLeave={() => setHover(0)}
                     onClick={() => onChange(s)}
-                    className={`text-3xl transition-transform hover:scale-110 ${
-                        s <= (hover || value) ? 'text-amber-400' : 'text-slate-300'
-                    }`}
+                    className={`text-3xl transition-transform hover:scale-110 ${s <= (hover || value) ? 'text-amber-400' : 'text-slate-300'
+                        }`}
                 >
                     ★
                 </button>
@@ -44,6 +43,7 @@ export default function ReviewSection({ bookId }) {
     const [newComment, setNewComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [submitMsg, setSubmitMsg] = useState('');
+    const [canReview, setCanReview] = useState(false);
 
     const fetchReviews = async () => {
         try {
@@ -58,7 +58,14 @@ export default function ReviewSection({ bookId }) {
 
     useEffect(() => {
         fetchReviews();
-    }, [bookId]);
+        if (token) {
+            api.get(`/reviews/can-review/${bookId}`)
+                .then(res => setCanReview(res.data))
+                .catch(() => setCanReview(false));
+        } else {
+            setCanReview(false);
+        }
+    }, [bookId, token]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -127,32 +134,40 @@ export default function ReviewSection({ bookId }) {
 
             {/* Form viết review */}
             {token ? (
-                <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
-                    <h3 className="font-bold text-slate-700 mb-4">✍️ Viết đánh giá của bạn</h3>
-                    <div className="mb-4">
-                        <p className="text-sm text-slate-500 mb-2">Chọn số sao:</p>
-                        <StarPicker value={newRating} onChange={setNewRating} />
-                    </div>
-                    <textarea
-                        value={newComment}
-                        onChange={e => setNewComment(e.target.value)}
-                        placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."
-                        rows={4}
-                        className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition resize-none"
-                    />
-                    {submitMsg && (
-                        <p className={`mt-2 text-sm ${submitMsg.startsWith('✅') ? 'text-green-600' : 'text-red-500'}`}>
-                            {submitMsg}
+                canReview ? (
+                    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
+                        <h3 className="font-bold text-slate-700 mb-4">✍️ Viết đánh giá của bạn</h3>
+                        <div className="mb-4">
+                            <p className="text-sm text-slate-500 mb-2">Chọn số sao:</p>
+                            <StarPicker value={newRating} onChange={setNewRating} />
+                        </div>
+                        <textarea
+                            value={newComment}
+                            onChange={e => setNewComment(e.target.value)}
+                            placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."
+                            rows={4}
+                            className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition resize-none"
+                        />
+                        {submitMsg && (
+                            <p className={`mt-2 text-sm ${submitMsg.startsWith('✅') ? 'text-green-600' : 'text-red-500'}`}>
+                                {submitMsg}
+                            </p>
+                        )}
+                        <button
+                            type="submit"
+                            disabled={submitting || !newComment.trim()}
+                            className="mt-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold px-8 py-3 rounded-xl transition"
+                        >
+                            {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
+                        </button>
+                    </form>
+                ) : (
+                    <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 mb-6 text-center">
+                        <p className="text-amber-700 text-sm font-medium">
+
                         </p>
-                    )}
-                    <button
-                        type="submit"
-                        disabled={submitting || !newComment.trim()}
-                        className="mt-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold px-8 py-3 rounded-xl transition"
-                    >
-                        {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
-                    </button>
-                </form>
+                    </div>
+                )
             ) : (
                 <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 mb-6 text-center">
                     <p className="text-slate-600 text-sm">

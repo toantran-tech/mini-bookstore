@@ -56,13 +56,10 @@ export default function Profile() {
             fileInputRef.current.value = '';
         }
     };
-    
+
     // Form đổi mật khẩu
     const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
     const [savingPassword, setSavingPassword] = useState(false);
-
-    // Modal thông báo thành công
-    const [successModal, setSuccessModal] = useState({ show: false, message: '', onClose: null });
 
     // Lịch sử đơn hàng
     const [orders, setOrders] = useState([]);
@@ -110,7 +107,7 @@ export default function Profile() {
                 address: profile.address,
                 avatarUrl: profile.avatarUrl
             });
-            setSuccessModal({ show: true, message: 'Cập nhật thông tin thành công!' });
+            alert('Cập nhật thông tin thành công!');
         } catch (err) {
             alert('Lỗi cập nhật thông tin!');
         } finally {
@@ -129,14 +126,9 @@ export default function Profile() {
                 oldPassword: passwordData.oldPassword,
                 newPassword: passwordData.newPassword
             });
-            setSuccessModal({
-                show: true, 
-                message: 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.',
-                onClose: () => {
-                    logout();
-                    navigate('/login');
-                }
-            });
+            alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
+            logout();
+            navigate('/login');
         } catch (err) {
             alert(err.response?.data?.message || 'Lỗi đổi mật khẩu!');
         } finally {
@@ -152,33 +144,33 @@ export default function Profile() {
     return (
         <div className="min-h-[calc(100vh-64px)] bg-slate-50 py-10 px-4">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
-                
+
                 {/* Sidebar Navigation */}
                 <div className="w-full md:w-64 flex-shrink-0">
                     <h2 className="text-xl font-black text-gray-900 mb-6 px-4">Cài đặt tài khoản</h2>
                     <nav className="flex flex-col gap-1">
-                        <button 
+                        <button
                             onClick={() => handleTabChange('info')}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition text-left ${activeTab === 'info' ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 rounded-l-none' : 'text-gray-500 hover:bg-gray-100'}`}
                         >
                             <span className="text-lg">👤</span> Hồ sơ cá nhân
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleTabChange('password')}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition text-left ${activeTab === 'password' ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 rounded-l-none' : 'text-gray-500 hover:bg-gray-100'}`}
                         >
                             <span className="text-lg">🔐</span> Đổi mật khẩu
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleTabChange('orders')}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition text-left ${activeTab === 'orders' ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 rounded-l-none' : 'text-gray-500 hover:bg-gray-100'}`}
                         >
                             <span className="text-lg">📦</span> Lịch sử đơn hàng
                         </button>
-                        
+
                         <div className="my-4 border-t border-gray-200"></div>
 
-                        <button 
+                        <button
                             onClick={handleLogout}
                             className="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-rose-500 hover:bg-rose-50 transition text-left"
                         >
@@ -190,12 +182,12 @@ export default function Profile() {
                 {/* Main Content Area */}
                 <div className="flex-1">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                        
+
                         {/* Tab: Hồ sơ cá nhân */}
                         {activeTab === 'info' && (
                             <div className="animate-fade-in">
                                 <h3 className="text-xl font-bold text-gray-900 mb-8 border-b border-gray-100 pb-4">Thông tin cá nhân</h3>
-                                
+
                                 {/* Avatar Section */}
                                 <div className="flex items-center gap-6 mb-10">
                                     <div className="relative">
@@ -206,7 +198,7 @@ export default function Profile() {
                                                 {user?.username?.charAt(0).toUpperCase()}
                                             </div>
                                         )}
-                                        <button 
+                                        <button
                                             onClick={() => fileInputRef.current?.click()}
                                             className="absolute bottom-0 right-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white border-2 border-white shadow-sm hover:bg-indigo-700 transition"
                                         >
@@ -214,20 +206,20 @@ export default function Profile() {
                                         </button>
                                     </div>
                                     <div className="flex gap-3">
-                                        <input 
-                                            type="file" 
-                                            accept="image/*" 
-                                            hidden 
-                                            ref={fileInputRef} 
-                                            onChange={handleImageUpload} 
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            ref={fileInputRef}
+                                            onChange={handleImageUpload}
                                         />
-                                        <button 
+                                        <button
                                             onClick={() => fileInputRef.current?.click()}
                                             className="px-5 py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-semibold rounded-lg transition shadow-sm"
                                         >
                                             Tải ảnh mới
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={handleDeleteImage}
                                             className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition"
                                         >
@@ -416,28 +408,6 @@ export default function Profile() {
                     </div>
                 </div>
             </div>
-
-            {/* Success Modal Overlay */}
-            {successModal.show && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center transform scale-100 transition-transform">
-                        <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-                            ✓
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Thành công!</h3>
-                        <p className="text-gray-500 mb-6">{successModal.message}</p>
-                        <button 
-                            onClick={() => {
-                                setSuccessModal({ show: false, message: '', onClose: null });
-                                if (successModal.onClose) successModal.onClose();
-                            }}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition"
-                        >
-                            Đóng
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

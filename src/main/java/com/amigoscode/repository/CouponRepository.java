@@ -2,8 +2,10 @@ package com.amigoscode.repository;
 
 import com.amigoscode.Entity.Coupon;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+@Repository
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
     Optional<Coupon> findByCode(String code);
 }

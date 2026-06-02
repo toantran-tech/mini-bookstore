@@ -6,6 +6,7 @@ import com.amigoscode.Entity.User;
 import com.amigoscode.dto.ReviewRequest;
 import com.amigoscode.dto.ReviewResponse;
 import com.amigoscode.repository.BookRepository;
+import com.amigoscode.repository.OrderRepository;
 import com.amigoscode.repository.ReviewRepository;
 import com.amigoscode.repository.UserRepository;
 import com.amigoscode.service.ReviewService;
@@ -21,6 +22,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final OrderRepository orderRepository;
 
     @Override
     public ReviewResponse createReview(String username, ReviewRequest request) {
@@ -38,6 +40,11 @@ public class ReviewServiceImpl implements ReviewService {
         // Kiểm tra đã review chưa (1 user chỉ review 1 cuốn sách 1 lần)
         if (reviewRepository.existsByUserIdAndBookId(user.getId(), book.getId())) {
             throw new IllegalStateException("Bạn đã đánh giá cuốn sách này rồi!");
+        }
+
+        // Kiểm tra đã mua và nhận hàng chưa
+        if (!orderRepository.hasUserPurchasedAndReceivedBook(username, book.getId())) {
+            throw new IllegalStateException("Bạn phải mua và nhận hàng thành công thì mới được đánh giá!");
         }
 
         Review review = new Review();
@@ -80,6 +87,20 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public long countReviews(Long bookId) {
         return reviewRepository.countByBookId(bookId);
+    }
+
+    @Override
+    public boolean canReview(String username, Long bookId) {
+        // Nếu user chưa tồn tại, chưa mua, hoặc chưa nhận hàng -> false
+        if (!orderRepository.hasUserPurchasedAndReceivedBook(username, bookId)) {
+            return false;
+        }
+        // Thêm điều kiện: nếu đã review rồi thì ko cho review nữa
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user != null && reviewRepository.existsByUserIdAndBookId(user.getId(), bookId)) {
+            return false;
+        }
+        return true;
     }
 
     // ===== HELPER =====

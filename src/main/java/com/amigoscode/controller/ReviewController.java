@@ -41,6 +41,15 @@ public class ReviewController {
         ));
     }
 
+    // GET /api/reviews/can-review/{bookId} — Kiểm tra user có được phép review không
+    @GetMapping("/can-review/{bookId}")
+    public ResponseEntity<Boolean> canReview(Authentication authentication, @PathVariable Long bookId) {
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getName().equals("anonymousUser")) {
+            return ResponseEntity.ok(false);
+        }
+        return ResponseEntity.ok(reviewService.canReview(authentication.getName(), bookId));
+    }
+
     // DELETE /api/reviews/{id} — Xóa review của mình
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReview(
