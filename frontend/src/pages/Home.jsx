@@ -3,6 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import BookCard from '../components/BookCard';
 import { useAuth } from '../context/AuthContext';
+import { 
+    BookOpen, Search, Zap, Truck, Gift, FolderOpen, Flame, Sparkles, 
+    SlidersHorizontal, Library, Trophy, Inbox, CheckCircle2, PartyPopper, 
+    Code, Briefcase, BrainCircuit, BookType, Microscope, SearchX
+} from 'lucide-react';
 
 // ─── Skeleton Card ────────────────────────────────────────────────────────────
 const SkeletonCard = () => (
@@ -18,11 +23,11 @@ const SkeletonCard = () => (
 );
 
 // ─── Section Header ───────────────────────────────────────────────────────────
-const SectionHeader = ({ icon, title, subtitle, badge, badgeColor = 'bg-rose-100 text-rose-600', viewAllLink }) => (
+const SectionHeader = ({ icon: Icon, title, subtitle, badge, badgeColor = 'bg-rose-100 text-rose-600', viewAllLink }) => (
     <div className="flex items-end justify-between mb-6">
         <div>
             <div className="flex items-center gap-2 mb-1">
-                <span className="text-2xl">{icon}</span>
+                {Icon && <span className="text-indigo-600 p-2 bg-indigo-50 rounded-xl"><Icon size={24} /></span>}
                 <h2 className="text-2xl font-extrabold text-gray-800">{title}</h2>
                 {badge && <span className={`ml-1 px-3 py-0.5 rounded-full text-xs font-bold uppercase ${badgeColor}`}>{badge}</span>}
             </div>
@@ -203,8 +208,11 @@ export default function Home() {
     const progressPercent = totalBooks > 0 ? Math.round((loadedCount / totalBooks) * 100) : 0;
 
     const CATEGORY_ICONS = {
-        'Lập trình': '💻', 'Kinh doanh & Khởi nghiệp': '💼',
-        'Tâm lý & Kỹ năng sống': '🧠', 'Tiểu thuyết': '📖', 'Khoa học & Công nghệ': '🔬',
+        'Lập trình': Code, 
+        'Kinh doanh & Khởi nghiệp': Briefcase,
+        'Tâm lý & Kỹ năng sống': BrainCircuit, 
+        'Tiểu thuyết': BookType, 
+        'Khoa học & Công nghệ': Microscope,
     };
 
     return (
@@ -222,8 +230,8 @@ export default function Home() {
 
                     <div className="relative max-w-7xl mx-auto px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="text-white max-w-lg">
-                            <div className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 backdrop-blur-sm">
-                                📚 KHO SÁCH CHÍNH HÃNG 2025
+                            <div className="inline-flex items-center gap-2 bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-4 backdrop-blur-sm border border-white/20">
+                                <BookOpen size={14} /> KHO SÁCH CHÍNH HÃNG 2025
                             </div>
                             <h1 className="text-3xl md:text-5xl font-black leading-tight mb-3">
                                 Mini Bookstore<br />
@@ -234,12 +242,12 @@ export default function Home() {
                             </p>
                             <div className="flex gap-3 flex-wrap">
                                 <Link to="/top"
-                                    className="px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-yellow-300 hover:text-indigo-800 transition shadow-lg text-sm">
-                                    🏆 Bảng xếp hạng →
+                                    className="px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-yellow-300 hover:text-indigo-800 transition shadow-lg text-sm flex items-center gap-2">
+                                    <Trophy size={18} /> Bảng xếp hạng →
                                 </Link>
                                 <button onClick={() => setShowFilter(true)}
-                                    className="px-6 py-3 bg-white/20 text-white rounded-xl font-bold hover:bg-white/30 transition backdrop-blur-sm border border-white/30 text-sm">
-                                    🔍 Tìm kiếm
+                                    className="px-6 py-3 bg-white/20 text-white rounded-xl font-bold hover:bg-white/30 transition backdrop-blur-sm border border-white/30 text-sm flex items-center gap-2">
+                                    <Search size={18} /> Tìm kiếm
                                 </button>
                             </div>
                         </div>
@@ -272,12 +280,12 @@ export default function Home() {
                 {!isFiltering && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
                         {[
-                            { color: 'from-orange-400 to-rose-500', icon: '⚡', title: 'Flash Sale', sub: 'Hôm nay -20%', badge: 'Hết hạn 24h' },
-                            { color: 'from-emerald-400 to-teal-500', icon: '🚚', title: 'Miễn phí vận chuyển', sub: 'Đơn hàng từ 200K', badge: 'Toàn quốc' },
-                            { color: 'from-violet-500 to-purple-600', icon: '🎁', title: 'Mã giảm giá', sub: 'NEWBOOK20 - Giảm 20%', badge: 'Thành viên mới' },
-                        ].map(p => (
-                            <div key={p.title} className={`bg-gradient-to-r ${p.color} rounded-2xl p-5 text-white flex items-center gap-4 shadow-md hover:scale-[1.02] transition-transform cursor-pointer`}>
-                                <span className="text-4xl">{p.icon}</span>
+                            { color: 'from-orange-400 to-rose-500', icon: Zap, title: 'Flash Sale', sub: 'Hôm nay -20%', badge: 'Hết hạn 24h' },
+                            { color: 'from-emerald-400 to-teal-500', icon: Truck, title: 'Miễn phí vận chuyển', sub: 'Đơn hàng từ 200K', badge: 'Toàn quốc' },
+                            { color: 'from-violet-500 to-purple-600', icon: Gift, title: 'Mã giảm giá', sub: 'NEWBOOK20 - Giảm 20%', badge: 'Thành viên mới' },
+                        ].map((p, idx) => (
+                            <div key={idx} className={`bg-gradient-to-r ${p.color} rounded-2xl p-5 text-white flex items-center gap-4 shadow-md hover:scale-[1.02] transition-transform cursor-pointer`}>
+                                <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm"><p.icon size={28} /></div>
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-bold text-base">{p.title}</h3>
@@ -293,7 +301,7 @@ export default function Home() {
                 {/* ===== SEARCH + FILTER BAR ===== */}
                 <div className="flex gap-3 mb-6">
                     <div className="relative flex-1">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Search size={20} /></span>
                         <input type="text"
                             className="w-full bg-white border border-gray-200 text-gray-800 pl-11 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400 shadow-sm"
                             placeholder="Tìm kiếm sách..."
@@ -305,8 +313,8 @@ export default function Home() {
                         {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                     <button onClick={() => setShowFilter(!showFilter)}
-                        className={`px-4 py-3 rounded-xl border text-sm font-semibold transition shadow-sm ${showFilter ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600'}`}>
-                        ⚙️ Lọc
+                        className={`px-4 py-3 rounded-xl border text-sm font-semibold transition shadow-sm flex items-center gap-2 ${showFilter ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600'}`}>
+                        <SlidersHorizontal size={18} /> Lọc
                     </button>
                 </div>
 
@@ -321,12 +329,15 @@ export default function Home() {
                                     className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${selectedCategory === '' ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600 bg-white'}`}>
                                     Tất cả
                                 </button>
-                                {categories.map(c => (
-                                    <button key={c.id} onClick={() => handleCategoryClick(c.name)}
-                                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${selectedCategory === c.name ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600 bg-white'}`}>
-                                        {CATEGORY_ICONS[c.name] || '📌'} {c.name}
-                                    </button>
-                                ))}
+                                {categories.map(c => {
+                                    const Icon = CATEGORY_ICONS[c.name] || FolderOpen;
+                                    return (
+                                        <button key={c.id} onClick={() => handleCategoryClick(c.name)}
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${selectedCategory === c.name ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600 bg-white'}`}>
+                                            <Icon size={14} /> {c.name}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -360,27 +371,32 @@ export default function Home() {
                         {/* Category pills */}
                         <section className="mb-12">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-extrabold text-gray-800">📂 Danh mục sách</h2>
+                                <h2 className="text-xl font-extrabold text-gray-800 flex items-center gap-2">
+                                    <FolderOpen className="text-indigo-500" size={24} /> Danh mục sách
+                                </h2>
                                 <span className="text-xs text-gray-400">Nhấp để xem toàn bộ</span>
                             </div>
                             <div className="flex flex-wrap gap-3">
-                                {categories.map(cat => (
-                                    <button key={cat.id}
-                                        onClick={() => { setSelectedCategory(cat.name); setShowFilter(true); }}
-                                        className="group flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-indigo-400 hover:bg-indigo-50 transition-all font-semibold text-gray-700 hover:text-indigo-700 shadow-sm">
-                                        <span>{CATEGORY_ICONS[cat.name] || '📌'}</span>
-                                        <span>{cat.name}</span>
-                                        <svg className="w-4 h-4 text-gray-300 group-hover:text-indigo-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </button>
-                                ))}
+                                {categories.map(cat => {
+                                    const Icon = CATEGORY_ICONS[cat.name] || FolderOpen;
+                                    return (
+                                        <button key={cat.id}
+                                            onClick={() => { setSelectedCategory(cat.name); setShowFilter(true); }}
+                                            className="group flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-indigo-400 hover:bg-indigo-50 transition-all font-semibold text-gray-700 hover:text-indigo-700 shadow-sm">
+                                            <span className="text-gray-400 group-hover:text-indigo-600 transition-colors"><Icon size={20} /></span>
+                                            <span>{cat.name}</span>
+                                            <svg className="w-4 h-4 text-gray-300 group-hover:text-indigo-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </section>
 
-                        <BookRow title="Bán Chạy Nhất" icon="🔥" badge="Bestseller" badgeColor="bg-rose-100 text-rose-600"
+                        <BookRow title="Bán Chạy Nhất" icon={Flame} badge="Bestseller" badgeColor="bg-rose-100 text-rose-600"
                             sortBy="bestseller" viewAllLink="/top" />
-                        <BookRow title="Mới Nhất" icon="✨" badge="New" badgeColor="bg-emerald-100 text-emerald-600"
+                        <BookRow title="Mới Nhất" icon={Sparkles} badge="New" badgeColor="bg-emerald-100 text-emerald-600"
                             sortBy="newest" />
 
                         {/* Mid-page promo banner */}
@@ -388,7 +404,7 @@ export default function Home() {
                             <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/10"></div>
                             <div className="absolute right-20 bottom-0 w-32 h-32 rounded-full bg-white/10"></div>
                             <div className="relative text-white max-w-xl">
-                                <p className="text-sm font-bold mb-2 bg-white/25 inline-block px-3 py-1 rounded-full">🎉 Ưu đãi đặc biệt</p>
+                                <div className="text-sm font-bold mb-2 bg-white/25 inline-flex items-center gap-2 px-3 py-1.5 rounded-full"><PartyPopper size={16} /> Ưu đãi đặc biệt</div>
                                 <h2 className="text-2xl font-black mb-2">Thành viên mới — Giảm 20%<br />cho đơn đầu tiên!</h2>
                                 <p className="text-white/80 mb-4 text-sm">Áp dụng cho tất cả sản phẩm. Mã: <strong>NEWBOOK20</strong></p>
                                 {!user && (
@@ -403,8 +419,8 @@ export default function Home() {
                         <div className="text-center py-10 bg-white rounded-2xl border border-gray-100 shadow-sm">
                             <p className="text-gray-500 mb-4 text-sm">Chưa tìm được cuốn sách ưng ý?</p>
                             <button onClick={() => { setSortBy('newest'); setInitialLoading(true); setBooks([]); setPage(0); setHasMore(true); isFetchingRef.current = false; }}
-                                className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition shadow-lg shadow-indigo-200 text-sm">
-                                📚 Xem toàn bộ kho sách →
+                                className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition shadow-lg shadow-indigo-200 text-sm flex items-center justify-center gap-2 mx-auto">
+                                <Library size={20} /> Xem toàn bộ kho sách →
                             </button>
                         </div>
                     </>
@@ -438,8 +454,8 @@ export default function Home() {
                                 {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
                             </div>
                         ) : books.length === 0 ? (
-                            <div className="text-center py-24 bg-white rounded-3xl border border-gray-100">
-                                <p className="text-6xl mb-4">📭</p>
+                            <div className="text-center py-24 bg-white rounded-3xl border border-gray-100 flex flex-col items-center">
+                                <div className="bg-gray-50 p-6 rounded-full mb-4"><SearchX className="text-gray-300" size={64} /></div>
                                 <h3 className="text-xl font-bold text-gray-700 mb-2">Không tìm thấy sách nào</h3>
                                 <p className="text-sm text-gray-400">Thử thay đổi điều kiện tìm kiếm nhé!</p>
                             </div>
@@ -453,8 +469,8 @@ export default function Home() {
                         {loadingMore && <LoadingMore />}
 
                         {!hasMore && !initialLoading && books.length > 0 && (
-                            <div className="text-center py-10 border-t border-dashed border-gray-200 mt-6">
-                                <p className="text-2xl mb-2">✅</p>
+                            <div className="text-center py-10 border-t border-dashed border-gray-200 mt-6 flex flex-col items-center">
+                                <CheckCircle2 className="text-green-500 mb-2" size={32} />
                                 <p className="text-sm font-semibold text-gray-600">Đã hiển thị tất cả {totalBooks} cuốn sách</p>
                                 <p className="text-xs text-gray-400 mt-1">Kéo lên để xem lại</p>
                             </div>

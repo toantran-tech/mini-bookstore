@@ -1,10 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 
 export default function BookCard({ book }) {
     const { addItem, items } = useCart();
     const { token } = useAuth();
+    const { isFavorite, toggleWishlist } = useWishlist();
     const navigate = useNavigate();
 
     const inCart = items.some(i => i.bookId === book.id);
@@ -13,6 +15,11 @@ export default function BookCard({ book }) {
         e.preventDefault();
         if (!token) { navigate('/login'); return; }
         await addItem(book.id, 1);
+    };
+
+    const handleToggleWishlist = (e) => {
+        e.preventDefault();
+        toggleWishlist(book);
     };
 
     return (
@@ -34,17 +41,28 @@ export default function BookCard({ book }) {
                         </div>
                     )}
 
+                    {/* Wishlist Heart */}
+                    <button
+                        onClick={handleToggleWishlist}
+                        className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white backdrop-blur shadow-sm transition-all z-10"
+                        title="Thêm vào danh sách yêu thích"
+                    >
+                        <svg className={`w-5 h-5 transition-colors ${isFavorite(book.id) ? 'text-red-500 fill-red-500' : 'text-gray-400 fill-none'}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </button>
+
                     {/* Badges */}
                     {book.soldCount > 100 && (
-                        <span className="absolute top-3 right-3 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow">HOT</span>
+                        <span className="absolute top-3 left-3 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow z-10">HOT</span>
                     )}
                     {book.stock === 0 && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                             <span className="bg-red-500 text-white font-bold text-sm px-3 py-1.5 rounded-full">Hết hàng</span>
                         </div>
                     )}
-                    {book.categoryName && (
-                        <span className="absolute top-3 left-3 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-lg shadow">
+                    {book.categoryName && book.soldCount <= 100 && (
+                        <span className="absolute top-3 left-3 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-lg shadow z-10">
                             {book.categoryName}
                         </span>
                     )}

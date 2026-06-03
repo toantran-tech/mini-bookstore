@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import MapPicker from '../components/MapPicker';
 
 const SHIPPING_OPTIONS = [
     {
@@ -39,6 +40,7 @@ export default function Checkout() {
     const [couponLoading, setCouponLoading] = useState(false);
     const [ordering, setOrdering] = useState(false);
     const [errors, setErrors] = useState({});
+    const [showMap, setShowMap] = useState(false);
 
     const selectedShipping = SHIPPING_OPTIONS.find(o => o.id === shippingMethod);
     const shippingFee = selectedShipping?.fee || 0;
@@ -127,20 +129,47 @@ export default function Checkout() {
                                     { key: 'street', label: 'Địa chỉ cụ thể', placeholder: '123 Nguyễn Huệ, Phường Bến Nghé', col: 2 },
                                     { key: 'city', label: 'Tỉnh / Thành phố', placeholder: 'TP. Hồ Chí Minh', col: 1 },
                                 ].map(field => (
-                                    <div key={field.key} className={field.col === 2 ? 'sm:col-span-2' : ''}>
+                                    <div key={field.key} className={field.col === 2 ? 'sm:col-span-2 relative' : 'relative'}>
                                         <label className="block text-sm font-medium text-slate-600 mb-1">{field.label}</label>
-                                        <input
-                                            type="text"
-                                            placeholder={field.placeholder}
-                                            value={address[field.key]}
-                                            onChange={e => setAddress(prev => ({ ...prev, [field.key]: e.target.value }))}
-                                            className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-300 ${errors[field.key] ? 'border-red-400 bg-red-50' : 'border-slate-200 focus:border-indigo-400'}`}
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder={field.placeholder}
+                                                value={address[field.key]}
+                                                onChange={e => setAddress(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                                className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-300 ${errors[field.key] ? 'border-red-400 bg-red-50' : 'border-slate-200 focus:border-indigo-400'}`}
+                                            />
+                                            {/* Button to open map if it's the street/address field */}
+                                            {(field.key === 'street') && (
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => setShowMap(true)}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                                                >
+                                                    📍 Chọn trên Bản đồ
+                                                </button>
+                                            )}
+                                        </div>
                                         {errors[field.key] && <p className="text-red-500 text-xs mt-1">{errors[field.key]}</p>}
                                     </div>
                                 ))}
                             </div>
                         </div>
+
+                        {/* Map Picker Modal */}
+                        {showMap && (
+                            <MapPicker 
+                                onClose={() => setShowMap(false)}
+                                onConfirm={(location) => {
+                                    setAddress(prev => ({
+                                        ...prev,
+                                        street: location.street,
+                                        city: location.city
+                                    }));
+                                    setShowMap(false);
+                                }}
+                            />
+                        )}
 
                         {/* 2. Phương thức giao hàng */}
                         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">

@@ -9,6 +9,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import Profile from './pages/Profile';
+import Wishlist from './pages/Wishlist';
 import AdminLayout from './pages/admin/AdminLayout';
 import ManageBooks from './pages/admin/ManageBooks';
 import ManageOrders from './pages/admin/ManageOrders';
@@ -51,6 +52,9 @@ function App() {
                     } />
                     <Route path="/profile" element={
                         <ProtectedRoute><Profile /></ProtectedRoute>
+                    } />
+                    <Route path="/wishlist" element={
+                        <ProtectedRoute><Wishlist /></ProtectedRoute>
                     } />
                 </Routes>
             </main>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import MapPicker from '../components/MapPicker';
 
 const STATUS_COLOR = {
     Pending: 'bg-yellow-100 text-yellow-700',
@@ -20,6 +21,7 @@ export default function Profile() {
     const initialTab = queryParams.get('tab') || 'info';
 
     const [activeTab, setActiveTab] = useState(initialTab);
+    const [showMap, setShowMap] = useState(false);
 
     useEffect(() => {
         const tab = queryParams.get('tab') || 'info';
@@ -272,13 +274,22 @@ export default function Profile() {
                                         </div>
                                         <div className="col-span-1 md:col-span-2">
                                             <label className="block text-gray-700 text-sm font-bold mb-2">Địa chỉ giao hàng mặc định</label>
-                                            <input
-                                                type="text"
-                                                className="w-full bg-white border border-gray-300 text-gray-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                                                value={profile.address}
-                                                onChange={e => setProfile({ ...profile, address: e.target.value })}
-                                                placeholder="Nhập địa chỉ nhận hàng của bạn"
-                                            />
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    className="w-full bg-white border border-gray-300 text-gray-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 transition pr-32"
+                                                    value={profile.address}
+                                                    onChange={e => setProfile({ ...profile, address: e.target.value })}
+                                                    placeholder="Nhập địa chỉ nhận hàng của bạn"
+                                                />
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => setShowMap(true)}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                                                >
+                                                    📍 Mở Bản đồ
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="pt-4">
@@ -407,6 +418,20 @@ export default function Profile() {
                         )}
                     </div>
                 </div>
+
+                {/* Map Modal cho Hồ sơ */}
+                {showMap && (
+                    <MapPicker 
+                        onClose={() => setShowMap(false)}
+                        onConfirm={(location) => {
+                            setProfile(prev => ({
+                                ...prev,
+                                address: `${location.street}, ${location.city}`
+                            }));
+                            setShowMap(false);
+                        }}
+                    />
+                )}
             </div>
         </div>
     );
