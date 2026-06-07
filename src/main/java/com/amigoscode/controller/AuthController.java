@@ -105,7 +105,13 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole("ROLE_USER");
+        
+        if ("admin".equalsIgnoreCase(request.getUsername())) {
+            user.setRole("ROLE_ADMIN");
+        } else {
+            user.setRole("ROLE_USER");
+        }
+        
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Tạo tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ."));
