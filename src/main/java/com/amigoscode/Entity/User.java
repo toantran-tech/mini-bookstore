@@ -1,6 +1,7 @@
 package com.amigoscode.Entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,7 @@ public class User implements UserDetails {
 
     private String email;
 
+    @JsonIgnore   // Không trả password qua API
     @Column(nullable = false)
     private String password;
 
@@ -39,6 +41,7 @@ public class User implements UserDetails {
     @Column(columnDefinition = "LONGTEXT")
     private String avatarUrl;
 
+    @JsonIgnore   // Chặn vòng lặp User → Order → User
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
 
@@ -75,6 +78,7 @@ public class User implements UserDetails {
         return true;
     }
 
+    @JsonIgnore   // Không cần trong context order
     @ManyToMany
     @JoinTable(
             name = "user_favorite_books",

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 
-const EMPTY_FORM = { title: '', author: '', price: '', stock: '', categoryName: '', imageUrl: '', description: '' };
+const EMPTY_FORM = { title: '', author: '', isbn: '', price: '', stock: '', categoryName: '', imageUrl: '', description: '' };
 
 export default function ManageBooks() {
     const [books, setBooks] = useState([]);
@@ -34,6 +34,7 @@ export default function ManageBooks() {
         setForm({
             title: book.title || '',
             author: book.author || '',
+            isbn: book.isbn || '',
             price: book.price || '',
             stock: book.stock || '',
             categoryName: book.categoryName || '',
@@ -91,6 +92,7 @@ export default function ManageBooks() {
                                 <tr>
                                     <th className="px-6 py-4 text-left">Tên sách</th>
                                     <th className="px-6 py-4 text-left">Tác giả</th>
+                                    <th className="px-6 py-4 text-left">ISBN</th>
                                     <th className="px-6 py-4 text-left">Giá</th>
                                     <th className="px-6 py-4 text-left">Tồn kho</th>
                                     <th className="px-6 py-4 text-left">Thể loại</th>
@@ -102,6 +104,7 @@ export default function ManageBooks() {
                                     <tr key={book.id} className="hover:bg-indigo-50/50 transition">
                                         <td className="px-6 py-4 text-gray-900 font-bold max-w-xs truncate">{book.title}</td>
                                         <td className="px-6 py-4 text-gray-500 font-medium">{book.author}</td>
+                                        <td className="px-6 py-4 text-gray-500 text-xs">{book.isbn || '-'}</td>
                                         <td className="px-6 py-4 text-indigo-600 font-black">{book.price?.toLocaleString('vi-VN')}đ</td>
                                         <td className="px-6 py-4 text-gray-500 font-medium">
                                             <span className={`px-2 py-1 rounded-md text-xs font-bold ${book.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -117,7 +120,7 @@ export default function ManageBooks() {
                                 ))}
                                 {books.length === 0 && (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-8 text-center text-gray-400 font-medium">Chưa có sách nào.</td>
+                                        <td colSpan="7" className="px-6 py-8 text-center text-gray-400 font-medium">Chưa có sách nào.</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -154,6 +157,11 @@ export default function ManageBooks() {
                                         required
                                         placeholder="Nhập tên tác giả..."
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Mã ISBN</label>
+                                    <input type="text" value={form.isbn} onChange={e => setForm({ ...form, isbn: e.target.value })}
+                                        className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm text-sm" placeholder="VD: 978-3-16-148410-0" />
                                 </div>
                                 <div>
                                     <label className="block text-gray-700 text-sm font-bold mb-1.5">Thể loại</label>

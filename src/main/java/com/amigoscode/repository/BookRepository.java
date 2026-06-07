@@ -15,14 +15,19 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     Book findByAuthor(String author);
 
-    // Search theo tên, hỗ trợ filter category + price range
+    // Search theo tên HOẶC tác giả, hỗ trợ filter category + price range
     @Query("SELECT b FROM Book b WHERE " +
-            "(:keyword IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+            "(:keyword IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "   OR LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+            "(:author IS NULL OR LOWER(b.author) LIKE LOWER(CONCAT('%', :author, '%'))) AND " +
+            "(:isbn IS NULL OR b.isbn = :isbn) AND " +
             "(:categoryName IS NULL OR b.category.name = :categoryName) AND " +
             "(:minPrice IS NULL OR b.price >= :minPrice) AND " +
             "(:maxPrice IS NULL OR b.price <= :maxPrice)")
     Page<Book> findWithFilters(
             @Param("keyword") String keyword,
+            @Param("author") String author,
+            @Param("isbn") String isbn,
             @Param("categoryName") String categoryName,
             @Param("minPrice") Double minPrice,
             @Param("maxPrice") Double maxPrice,

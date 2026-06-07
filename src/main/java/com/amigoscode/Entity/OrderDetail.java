@@ -1,6 +1,7 @@
 package com.amigoscode.Entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @JsonIgnore          // Chặn vòng lặp Order → OrderDetail → Order
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;

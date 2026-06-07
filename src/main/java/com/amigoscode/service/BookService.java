@@ -13,10 +13,12 @@ public interface BookService {
     // Tìm kiếm + lọc đa điều kiện
     Page<BookResponse> getAllBooks(
             String search,
+            String author,
+            String isbn,
             String categoryName,
             Double minPrice,
             Double maxPrice,
-            String sortBy,   // "newest" | "bestseller" | "price_asc" | "price_desc"
+            String sortBy,
             int page,
             int size
     );

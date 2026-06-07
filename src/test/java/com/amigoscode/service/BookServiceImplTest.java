@@ -165,11 +165,11 @@ class BookServiceImplTest {
     void getAllBooks_withFilter_shouldReturnPage() {
         // Giả lập repository trả về 1 trang có 1 sách
         Page<Book> fakePage = new PageImpl<>(List.of(sampleBook));
-        when(bookRepository.findWithFilters(any(), any(), any(), any(), any(Pageable.class)))
+        when(bookRepository.findWithFilters(any(), any(), any(), any(), any(), any(), any(Pageable.class)))
                 .thenReturn(fakePage);
 
         Page<BookResponse> result = bookService.getAllBooks(
-                "Clean", "Fiction", 10.0, 50.0, "bestseller", 0, 10);
+                "Clean", "Fiction", null, null, 10.0, 50.0, "bestseller", 0, 10);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).getTitle()).isEqualTo("Clean Code");
@@ -178,11 +178,11 @@ class BookServiceImplTest {
     @Test
     @DisplayName("getAllBooks (filter): sort=newest hoạt động không throw exception")
     void getAllBooks_withFilter_sortNewest_shouldNotThrow() {
-        when(bookRepository.findWithFilters(any(), any(), any(), any(), any(Pageable.class)))
+        when(bookRepository.findWithFilters(any(), any(), any(), any(), any(), any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(sampleBook)));
 
         Page<BookResponse> result = bookService.getAllBooks(
-                null, null, null, null, "newest", 0, 5);
+                null, null, null, null, null, null, "newest", 0, 5);
 
         assertThat(result).isNotNull();
     }
@@ -354,4 +354,3 @@ class BookServiceImplTest {
         verify(bookRepository, never()).save(any());
     }
 }
-

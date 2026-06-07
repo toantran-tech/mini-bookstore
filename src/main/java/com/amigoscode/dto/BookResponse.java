@@ -13,6 +13,7 @@ public class BookResponse {
     private Long id;
     private String title;
     private String author;
+    private String isbn;
     private String categoryName;
     private double price;
     private Integer stock;

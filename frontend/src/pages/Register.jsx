@@ -87,11 +87,10 @@ export default function Register() {
                             const done = n === 1 && step === STEPS.OTP;
                             return (
                                 <div key={n} className="flex items-center gap-3 flex-1">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all ${
-                                        done ? 'bg-green-500 text-white' :
-                                        active ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/40' :
-                                        'bg-white/10 text-slate-400'
-                                    }`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all ${done ? 'bg-green-500 text-white' :
+                                            active ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/40' :
+                                                'bg-white/10 text-slate-400'
+                                        }`}>
                                         {done ? '✓' : n}
                                     </div>
                                     <span className={`text-xs font-medium ${active ? 'text-white' : 'text-slate-500'}`}>

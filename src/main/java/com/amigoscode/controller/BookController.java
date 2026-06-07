@@ -60,6 +60,12 @@ public class BookController {
             @Parameter(description = "Từ khóa tìm kiếm theo tên sách hoặc tác giả", example = "Clean Code")
             @RequestParam(required = false) String search,
 
+            @Parameter(description = "Lọc riêng theo tên tác giả", example = "Robert Martin")
+            @RequestParam(required = false) String author,
+
+            @Parameter(description = "Lọc theo mã ISBN", example = "978-3-16-148410-0")
+            @RequestParam(required = false) String isbn,
+
             @Parameter(description = "Lọc theo tên danh mục", example = "Fiction")
             @RequestParam(required = false) String categoryName,
 
@@ -78,7 +84,7 @@ public class BookController {
             @Parameter(description = "Số sách mỗi trang", example = "8")
             @RequestParam(defaultValue = "8") int size) {
 
-        return bookService.getAllBooks(search, categoryName, minPrice, maxPrice, sortBy, page, size);
+        return bookService.getAllBooks(search, author, isbn, categoryName, minPrice, maxPrice, sortBy, page, size);
     }
 
     /**

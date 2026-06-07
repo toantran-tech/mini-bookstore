@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import BookCard from '../components/BookCard';
 import { useAuth } from '../context/AuthContext';
-import { 
-    BookOpen, Search, Zap, Truck, Gift, FolderOpen, Flame, Sparkles, 
-    SlidersHorizontal, Library, Trophy, Inbox, CheckCircle2, PartyPopper, 
+import {
+    BookOpen, Search, Zap, Truck, Gift, FolderOpen, Flame, Sparkles,
+    SlidersHorizontal, Library, Trophy, Inbox, CheckCircle2, PartyPopper,
     Code, Briefcase, BrainCircuit, BookType, Microscope, SearchX
 } from 'lucide-react';
 
@@ -50,7 +50,7 @@ function BookRow({ title, icon, badge, badgeColor, sortBy, size = 4, viewAllLink
     useEffect(() => {
         api.get('/books/all', { params: { sortBy, size, page: 0 } })
             .then(res => setBooks(res.data.content || []))
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => setLoading(false));
     }, []);
 
@@ -84,10 +84,10 @@ const LoadingMore = () => (
 );
 
 const SORT_OPTIONS = [
-    { value: '',           label: '🔀 Mặc định' },
-    { value: 'newest',     label: '✨ Mới nhất' },
+    { value: '', label: '🔀 Mặc định' },
+    { value: 'newest', label: '✨ Mới nhất' },
     { value: 'bestseller', label: '🔥 Bán chạy' },
-    { value: 'price_asc',  label: '💰 Giá thấp → cao' },
+    { value: 'price_asc', label: '💰 Giá thấp → cao' },
     { value: 'price_desc', label: '💎 Giá cao → thấp' },
 ];
 
@@ -100,6 +100,8 @@ export default function Home() {
 
     // Filter/search state
     const [search, setSearch] = useState('');
+    const [authorSearch, setAuthorSearch] = useState('');
+    const [isbnSearch, setIsbnSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [minPrice, setMinPrice] = useState('');
@@ -121,11 +123,11 @@ export default function Home() {
     const debounceRef = useRef(null);
 
     const PAGE_SIZE = 8;
-    const isFiltering = !!(search || selectedCategory || sortBy || minPrice || maxPrice);
+    const isFiltering = !!(search || authorSearch || isbnSearch || selectedCategory || sortBy || minPrice || maxPrice);
 
     // Fetch categories
     useEffect(() => {
-        api.get('/categories').then(res => setCategories(res.data)).catch(() => {});
+        api.get('/categories').then(res => setCategories(res.data)).catch(() => { });
     }, []);
 
     // Reset khi filter thay đổi
@@ -137,7 +139,7 @@ export default function Home() {
             setInitialLoading(true);
             isFetchingRef.current = false;
         }
-    }, [search, selectedCategory, sortBy]);
+    }, [search, authorSearch, isbnSearch, selectedCategory, sortBy]);
 
     // Fetch books (lazy loading)
     const fetchPage = useCallback(async (pageNum) => {
@@ -149,6 +151,8 @@ export default function Home() {
                 page: pageNum,
                 size: PAGE_SIZE,
                 ...(search && { search }),
+                ...(authorSearch && { author: authorSearch }),
+                ...(isbnSearch && { isbn: isbnSearch }),
                 ...(selectedCategory && { categoryName: selectedCategory }),
                 ...(sortBy && { sortBy }),
                 ...(minPrice && { minPrice }),
@@ -168,7 +172,7 @@ export default function Home() {
             setLoadingMore(false);
             isFetchingRef.current = false;
         }
-    }, [search, selectedCategory, sortBy, minPrice, maxPrice]);
+    }, [search, authorSearch, isbnSearch, selectedCategory, sortBy, minPrice, maxPrice]);
 
     useEffect(() => {
         if (isFiltering) fetchPage(page);
@@ -197,10 +201,18 @@ export default function Home() {
         clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => setSearch(val), 400);
     };
+    const handleAuthorSearch = (val) => {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => setAuthorSearch(val), 400);
+    };
+    const handleIsbnSearch = (val) => {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => setIsbnSearch(val), 400);
+    };
     const handleCategoryClick = (name) => setSelectedCategory(prev => prev === name ? '' : name);
     const handleSortChange = (val) => setSortBy(val);
     const resetFilters = () => {
-        setSearch(''); setSortBy(''); setMinPrice(''); setMaxPrice('');
+        setSearch(''); setAuthorSearch(''); setIsbnSearch(''); setSortBy(''); setMinPrice(''); setMaxPrice('');
         setSelectedCategory(''); setShowFilter(false);
     };
 
@@ -208,10 +220,10 @@ export default function Home() {
     const progressPercent = totalBooks > 0 ? Math.round((loadedCount / totalBooks) * 100) : 0;
 
     const CATEGORY_ICONS = {
-        'Lập trình': Code, 
+        'Lập trình': Code,
         'Kinh doanh & Khởi nghiệp': Briefcase,
-        'Tâm lý & Kỹ năng sống': BrainCircuit, 
-        'Tiểu thuyết': BookType, 
+        'Tâm lý & Kỹ năng sống': BrainCircuit,
+        'Tiểu thuyết': BookType,
         'Khoa học & Công nghệ': Microscope,
     };
 
@@ -338,6 +350,30 @@ export default function Home() {
                                         </button>
                                     );
                                 })}
+                            </div>
+                        </div>
+
+                        {/* Author & ISBN search */}
+                        <div className="flex flex-wrap gap-4">
+                            <div>
+                                <label className="text-gray-500 text-xs uppercase tracking-wide mb-2 block font-bold">Tìm theo tác giả</label>
+                                <input
+                                    type="text"
+                                    placeholder="VD: Robert C. Martin..."
+                                    defaultValue={authorSearch}
+                                    onChange={e => handleAuthorSearch(e.target.value)}
+                                    className="w-52 bg-white border border-gray-200 text-gray-800 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-gray-500 text-xs uppercase tracking-wide mb-2 block font-bold">Mã ISBN</label>
+                                <input
+                                    type="text"
+                                    placeholder="VD: 978-3-16-148410-0"
+                                    defaultValue={isbnSearch}
+                                    onChange={e => handleIsbnSearch(e.target.value)}
+                                    className="w-52 bg-white border border-gray-200 text-gray-800 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                />
                             </div>
                         </div>
 

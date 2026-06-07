@@ -8,8 +8,10 @@
 
 body {
     margin: 0;
-    background-color: #f8fafc; /* gray-50 — light mode như BTVN_04 */
-    color: #1e293b;             /* slate-800 */
+    background-color: #f8fafc;
+    /* gray-50 — light mode như BTVN_04 */
+    color: #1e293b;
+    /* slate-800 */
 }
 
 html {
@@ -18,9 +20,15 @@ html {
 
 /* Shimmer animation cho skeleton */
 @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
+
 .animate-shimmer {
     background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
     background-size: 200% 100%;

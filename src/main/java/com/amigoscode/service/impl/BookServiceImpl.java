@@ -4,6 +4,8 @@ import com.amigoscode.Entity.Book;
 import com.amigoscode.dto.BookResponse;
 import com.amigoscode.repository.BookRepository;
 import com.amigoscode.service.BookService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @CacheEvict(value = "topBooks", allEntries = true)
     public Book addBook(Book book) {
         if (book.getPrice() < 0) {
             throw new IllegalArgumentException("Price cannot be negative");
@@ -39,6 +42,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public Page<BookResponse> getAllBooks(
             String search,
+            String author,
+            String isbn,
             String categoryName,
             Double minPrice,
             Double maxPrice,
@@ -58,10 +63,13 @@ public class BookServiceImpl implements BookService {
 
         // Chuẩn hóa params
         String keyword = (search == null || search.isBlank()) ? null : search;
+        String authorKeyword = (author == null || author.isBlank()) ? null : author;
         String catName = (categoryName == null || categoryName.isBlank()) ? null : categoryName;
 
+        String isbnParam = (isbn == null || isbn.isBlank()) ? null : isbn;
+
         return bookRepository
-                .findWithFilters(keyword, catName, minPrice, maxPrice, pageable)
+                .findWithFilters(keyword, authorKeyword, isbnParam, catName, minPrice, maxPrice, pageable)
                 .map(this::mapToBookResponse);
     }
 
@@ -73,6 +81,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @CacheEvict(value = "topBooks", allEntries = true)
     public BookResponse updateBook(Long id, BookResponse bookResponse) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + id));
@@ -83,6 +92,7 @@ public class BookServiceImpl implements BookService {
         book.setStock(bookResponse.getStock());
         book.setImageUrl(bookResponse.getImageUrl());
         book.setDescription(bookResponse.getDescription());
+        book.setIsbn(bookResponse.getIsbn());
         if (bookResponse.getImageUrls() != null) {
             book.setImageUrls(bookResponse.getImageUrls());
         }
@@ -91,6 +101,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @CacheEvict(value = "topBooks", allEntries = true)
     public void deleteBookById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + id));
@@ -114,6 +125,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Cacheable(value = "topBooks")
     public java.util.Map<String, List<BookResponse>> getTopBooks() {
         List<BookResponse> bestsellers = bookRepository.findTop10ByOrderBySoldCountDesc()
                 .stream().map(this::mapToBookResponse).toList();
@@ -125,6 +137,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @CacheEvict(value = "topBooks", allEntries = true)
     public void incrementViewCount(Long id) {
         bookRepository.findById(id).ifPresent(book -> {
             book.setViewCount((book.getViewCount() == null ? 0 : book.getViewCount()) + 1);
@@ -141,6 +154,7 @@ public class BookServiceImpl implements BookService {
         response.setAuthor(book.getAuthor());
         response.setPrice(book.getPrice());
         response.setStock(book.getStock());
+        response.setIsbn(book.getIsbn());
         response.setImageUrl(book.getImageUrl());
         response.setDescription(book.getDescription());
         response.setSoldCount(book.getSoldCount() != null ? book.getSoldCount() : 0);

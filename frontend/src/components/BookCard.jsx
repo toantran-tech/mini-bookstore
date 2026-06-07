@@ -95,13 +95,12 @@ export default function BookCard({ book }) {
                         <button
                             onClick={handleAddToCart}
                             disabled={book.stock === 0}
-                            className={`text-xs font-bold px-3 py-2 rounded-xl transition flex-shrink-0 shadow-sm ${
-                                inCart
+                            className={`text-xs font-bold px-3 py-2 rounded-xl transition flex-shrink-0 shadow-sm ${inCart
                                     ? 'bg-green-500 text-white'
                                     : book.stock === 0
-                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200'
-                            }`}
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200'
+                                }`}
                         >
                             {inCart ? '✓ Đã thêm' : '+ Giỏ'}
                         </button>

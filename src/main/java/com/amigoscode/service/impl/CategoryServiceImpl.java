@@ -4,6 +4,7 @@ import com.amigoscode.Entity.Category;
 import com.amigoscode.dto.CategoryResponse;
 import com.amigoscode.repository.CategoryRepository;
 import com.amigoscode.service.CategoryService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryRepository = categoryRepository;
     }
     @Override
+    @Cacheable(value = "categories")
     public List<CategoryResponse> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
 
