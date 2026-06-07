@@ -31,7 +31,6 @@ export const WishlistProvider = ({ children }) => {
             return;
         }
         try {
-            // Optimistic update
             const isFavorite = wishlist.some(b => b.id === book.id);
             if (isFavorite) {
                 setWishlist(prev => prev.filter(b => b.id !== book.id));
@@ -39,11 +38,9 @@ export const WishlistProvider = ({ children }) => {
                 setWishlist(prev => [...prev, book]);
             }
             
-            // API call
             await api.post(`/wishlist/${book.id}`);
         } catch (error) {
             console.error('Error toggling wishlist:', error);
-            // Revert on error
             fetchWishlist();
         }
     };

@@ -22,32 +22,27 @@ public class ApplicationConfig {
         this.userRepository = userRepository;
     }
 
-    // 1. Chỉ cho Spring biết cách tìm User trong Database của mình
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user: " + username));
     }
 
-    // 2. Kết hợp UserDetailsService và máy băm mật khẩu
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder());
         authProvider.setUserDetailsService(userDetailsService());
 
-        // Mật khẩu thì vẫn có thể set sau được
         authProvider.setPasswordEncoder(passwordEncoder());
 
         return authProvider;
     }
 
-    // 3. Quản lý luồng xác thực tổng
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // 4. Máy băm mật khẩu (Mã hóa 1 chiều cực mạnh)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

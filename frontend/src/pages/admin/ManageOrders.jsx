@@ -4,13 +4,11 @@ import api from '../../services/api';
 const STATUSES = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
 
 const STATUS_CONFIG = {
-    // Status mới
     Pending:    { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', label: 'Chờ xử lý' },
     Processing: { color: 'bg-blue-100 text-blue-800 border-blue-200',       label: 'Đang xử lý' },
     Shipped:    { color: 'bg-purple-100 text-purple-800 border-purple-200', label: 'Đã giao' },
     Delivered:  { color: 'bg-green-100 text-green-800 border-green-200',    label: 'Hoàn thành' },
     Cancelled:  { color: 'bg-red-100 text-red-800 border-red-200',          label: 'Đã hủy' },
-    // Status cũ trong DB (legacy)
     CONFIRMED:  { color: 'bg-green-100 text-green-800 border-green-200',    label: 'Đã xác nhận' },
     PENDING:    { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', label: 'Chờ xử lý' },
     CANCELLED:  { color: 'bg-red-100 text-red-800 border-red-200',          label: 'Đã hủy' },
@@ -90,7 +88,6 @@ export default function ManageOrders() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900">Quản lý Đơn hàng</h1>
@@ -102,7 +99,6 @@ export default function ManageOrders() {
                 </button>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 {[
                     { label: 'Tổng đơn',   value: stats.total,      cls: 'bg-gray-50   border-gray-200   text-gray-700' },
@@ -118,7 +114,6 @@ export default function ManageOrders() {
                 ))}
             </div>
 
-            {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-3">
                 <input
                     type="text"
@@ -142,7 +137,6 @@ export default function ManageOrders() {
                 </div>
             </div>
 
-            {/* Table */}
             <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -167,7 +161,6 @@ export default function ManageOrders() {
                             )}
                             {filtered.map(order => (
                                 <Fragment key={order.id}>
-                                    {/* Row chính */}
                                     <tr
                                         className={`hover:bg-indigo-50/30 cursor-pointer transition ${expandedId === order.id ? 'bg-indigo-50/20' : ''}`}
                                         onClick={() => setExpandedId(prev => prev === order.id ? null : order.id)}
@@ -214,7 +207,6 @@ export default function ManageOrders() {
                                         </td>
                                     </tr>
 
-                                    {/* Row chi tiết (expanded) */}
                                     {expandedId === order.id && (
                                         <tr>
                                             <td colSpan="7" className="px-10 py-4 bg-indigo-50/10">

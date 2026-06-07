@@ -54,12 +54,10 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderDate(LocalDateTime.now());
         order.setStatus("Pending");
 
-        // Shipping
         order.setShippingAddress(request.getShippingAddress());
         order.setShippingMethod(request.getShippingMethod());
         order.setShippingFee(calcShippingFee(request.getShippingMethod()));
 
-        // Tính subtotal từ các sách
         double subtotal = 0.0;
         List<OrderDetail> orderDetails = new ArrayList<>();
 
@@ -87,7 +85,6 @@ public class OrderServiceImpl implements OrderService {
 
         order.setSubtotal(subtotal);
 
-        // Áp dụng coupon nếu có
         double discountAmount = 0;
         if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
             Coupon coupon = couponRepository.findByCode(request.getCouponCode().trim().toUpperCase())
@@ -102,7 +99,6 @@ public class OrderServiceImpl implements OrderService {
                 }
                 discountAmount = Math.min(discountAmount, subtotal);
 
-                // Tăng usedCount
                 coupon.setUsedCount(coupon.getUsedCount() + 1);
                 couponRepository.save(coupon);
 
@@ -121,7 +117,6 @@ public class OrderServiceImpl implements OrderService {
         return savedOrder;
     }
 
-    // Tính phí ship theo phương thức
     private double calcShippingFee(String method) {
         if (method == null) return 0;
         return switch (method.toUpperCase()) {

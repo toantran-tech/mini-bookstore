@@ -9,7 +9,6 @@ import {
     Code, Briefcase, BrainCircuit, BookType, Microscope, SearchX
 } from 'lucide-react';
 
-// ─── Skeleton Card ────────────────────────────────────────────────────────────
 const SkeletonCard = () => (
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 animate-pulse">
         <div className="h-52 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"></div>
@@ -22,7 +21,6 @@ const SkeletonCard = () => (
     </div>
 );
 
-// ─── Section Header ───────────────────────────────────────────────────────────
 const SectionHeader = ({ icon: Icon, title, subtitle, badge, badgeColor = 'bg-rose-100 text-rose-600', viewAllLink }) => (
     <div className="flex items-end justify-between mb-6">
         <div>
@@ -41,7 +39,6 @@ const SectionHeader = ({ icon: Icon, title, subtitle, badge, badgeColor = 'bg-ro
     </div>
 );
 
-// ─── Mini Horizontal Book Row ─────────────────────────────────────────────────
 function BookRow({ title, icon, badge, badgeColor, sortBy, size = 4, viewAllLink }) {
     const [books, setBooks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -70,7 +67,6 @@ function BookRow({ title, icon, badge, badgeColor, sortBy, size = 4, viewAllLink
     );
 }
 
-// ─── Loading More Indicator ───────────────────────────────────────────────────
 const LoadingMore = () => (
     <div className="flex flex-col items-center gap-3 py-10">
         <div className="flex gap-1.5">
@@ -91,14 +87,10 @@ const SORT_OPTIONS = [
     { value: 'price_desc', label: '💎 Giá cao → thấp' },
 ];
 
-// ════════════════════════════════════════════════════════════════════════════
-//  HOME PAGE
-// ════════════════════════════════════════════════════════════════════════════
 export default function Home() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Filter/search state
     const [search, setSearch] = useState('');
     const [authorSearch, setAuthorSearch] = useState('');
     const [isbnSearch, setIsbnSearch] = useState('');
@@ -109,7 +101,6 @@ export default function Home() {
     const [categories, setCategories] = useState([]);
     const [showFilter, setShowFilter] = useState(false);
 
-    // Lazy loading state
     const [books, setBooks] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -125,12 +116,10 @@ export default function Home() {
     const PAGE_SIZE = 8;
     const isFiltering = !!(search || authorSearch || isbnSearch || selectedCategory || sortBy || minPrice || maxPrice);
 
-    // Fetch categories
     useEffect(() => {
         api.get('/categories').then(res => setCategories(res.data)).catch(() => { });
     }, []);
 
-    // Reset khi filter thay đổi
     useEffect(() => {
         if (isFiltering) {
             setBooks([]);
@@ -141,7 +130,6 @@ export default function Home() {
         }
     }, [search, authorSearch, isbnSearch, selectedCategory, sortBy]);
 
-    // Fetch books (lazy loading)
     const fetchPage = useCallback(async (pageNum) => {
         if (isFetchingRef.current) return;
         isFetchingRef.current = true;
@@ -178,7 +166,6 @@ export default function Home() {
         if (isFiltering) fetchPage(page);
     }, [page, fetchPage, isFiltering]);
 
-    // IntersectionObserver — lazy loading trigger
     useEffect(() => {
         if (!isFiltering) return;
         if (observerRef.current) observerRef.current.disconnect();
@@ -230,10 +217,8 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-gray-50">
 
-            {/* ===== HERO BANNER ===== */}
             {!isFiltering && (
                 <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 overflow-hidden mx-4 mt-4 rounded-3xl">
-                    {/* Decorative circles */}
                     <div className="absolute inset-0 opacity-10">
                         <div className="absolute top-4 left-8 w-40 h-40 rounded-full border-4 border-white"></div>
                         <div className="absolute -bottom-10 -right-10 w-64 h-64 rounded-full border-4 border-white"></div>
@@ -272,7 +257,6 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Stats bar */}
                     <div className="relative bg-white/10 backdrop-blur-sm border-t border-white/20 px-8 py-4">
                         <div className="max-w-7xl mx-auto grid grid-cols-3 gap-4 text-white text-center">
                             {[{ num: '15+', label: 'Đầu sách' }, { num: '5', label: 'Danh mục' }, { num: '100+', label: 'Khách hàng' }].map(s => (
@@ -288,7 +272,6 @@ export default function Home() {
 
             <div className="max-w-7xl mx-auto px-4 py-8">
 
-                {/* ===== PROMO BANNERS ===== */}
                 {!isFiltering && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
                         {[
@@ -310,7 +293,6 @@ export default function Home() {
                     </div>
                 )}
 
-                {/* ===== SEARCH + FILTER BAR ===== */}
                 <div className="flex gap-3 mb-6">
                     <div className="relative flex-1">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Search size={20} /></span>
@@ -330,10 +312,8 @@ export default function Home() {
                     </button>
                 </div>
 
-                {/* ===== FILTER PANEL ===== */}
                 {showFilter && (
                     <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-8 shadow-sm flex flex-wrap gap-6 items-end">
-                        {/* Category */}
                         <div className="flex-1 min-w-56">
                             <label className="text-gray-500 text-xs uppercase tracking-wide mb-2 block font-bold">Danh mục</label>
                             <div className="flex flex-wrap gap-2">
@@ -353,7 +333,6 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* Author & ISBN search */}
                         <div className="flex flex-wrap gap-4">
                             <div>
                                 <label className="text-gray-500 text-xs uppercase tracking-wide mb-2 block font-bold">Tìm theo tác giả</label>
@@ -377,7 +356,6 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* Price range */}
                         <div>
                             <label className="text-gray-500 text-xs uppercase tracking-wide mb-2 block font-bold">Khoảng giá (đ)</label>
                             <div className="flex items-center gap-2">
@@ -401,10 +379,8 @@ export default function Home() {
                     </div>
                 )}
 
-                {/* ===== HOMEPAGE SECTIONS (không filter) ===== */}
                 {!isFiltering ? (
                     <>
-                        {/* Category pills */}
                         <section className="mb-12">
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-xl font-extrabold text-gray-800 flex items-center gap-2">
@@ -435,7 +411,6 @@ export default function Home() {
                         <BookRow title="Mới Nhất" icon={Sparkles} badge="New" badgeColor="bg-emerald-100 text-emerald-600"
                             sortBy="newest" />
 
-                        {/* Mid-page promo banner */}
                         <div className="relative bg-gradient-to-r from-amber-400 to-orange-500 rounded-3xl p-8 overflow-hidden mb-12">
                             <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/10"></div>
                             <div className="absolute right-20 bottom-0 w-32 h-32 rounded-full bg-white/10"></div>
@@ -451,7 +426,6 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* Browse all CTA */}
                         <div className="text-center py-10 bg-white rounded-2xl border border-gray-100 shadow-sm">
                             <p className="text-gray-500 mb-4 text-sm">Chưa tìm được cuốn sách ưng ý?</p>
                             <button onClick={() => { setSortBy('newest'); setInitialLoading(true); setBooks([]); setPage(0); setHasMore(true); isFetchingRef.current = false; }}
@@ -461,7 +435,6 @@ export default function Home() {
                         </div>
                     </>
                 ) : (
-                    /* ===== LAZY LOADING GRID ===== */
                     <>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold text-gray-800">
@@ -470,7 +443,6 @@ export default function Home() {
                             <button onClick={resetFilters} className="text-sm text-gray-400 hover:text-indigo-600 font-semibold transition">← Về trang chủ</button>
                         </div>
 
-                        {/* Progress bar */}
                         {!initialLoading && totalBooks > 0 && (
                             <div className="mb-6">
                                 <div className="flex justify-between text-xs text-gray-400 mb-1.5">
@@ -484,7 +456,6 @@ export default function Home() {
                             </div>
                         )}
 
-                        {/* Grid */}
                         {initialLoading ? (
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
                                 {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
@@ -501,7 +472,6 @@ export default function Home() {
                             </div>
                         )}
 
-                        {/* Lazy load indicators */}
                         {loadingMore && <LoadingMore />}
 
                         {!hasMore && !initialLoading && books.length > 0 && (
@@ -512,10 +482,8 @@ export default function Home() {
                             </div>
                         )}
 
-                        {/* Sentinel div cho IntersectionObserver */}
                         <div ref={sentinelRef} className="h-4 w-full" aria-hidden="true" />
 
-                        {/* Back to top */}
                         {books.length > 8 && (
                             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                                 className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition flex items-center justify-center hover:scale-110 active:scale-95 z-40">

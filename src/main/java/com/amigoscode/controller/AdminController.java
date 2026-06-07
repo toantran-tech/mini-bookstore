@@ -29,13 +29,11 @@ public class AdminController {
     @GetMapping("/stats")
     public ResponseEntity<AdminStatsResponse> getStats() {
 
-        // 1. Số liệu tổng quan
         long totalOrders = orderRepository.count();
         double totalRevenue = orderRepository.getTotalRevenue();
         long totalBooks = bookRepository.count();
         long totalUsers = userRepository.count();
 
-        // 2. Đơn hàng theo trạng thái
         Map<String, Long> ordersByStatus = new HashMap<>();
         List<Object[]> statusRows = orderRepository.countByStatus();
         for (Object[] row : statusRows) {
@@ -44,7 +42,6 @@ public class AdminController {
             ordersByStatus.put(status, count);
         }
 
-        // 3. Doanh thu theo tháng (12 tháng gần nhất)
         List<Map<String, Object>> revenueByMonth = new ArrayList<>();
         List<Object[]> monthRows = orderRepository.getRevenueByMonth();
         for (Object[] row : monthRows) {
@@ -54,7 +51,6 @@ public class AdminController {
             revenueByMonth.add(entry);
         }
 
-        // 4. Top 5 sách bán chạy nhất
         List<Map<String, Object>> topBooks = new ArrayList<>();
         bookRepository.findTop10ByOrderBySoldCountDesc()
                 .stream().limit(5).forEach(book -> {

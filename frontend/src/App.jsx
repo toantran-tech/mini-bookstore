@@ -40,7 +40,6 @@ function App() {
                         <Route path="coupons" element={<ManageCoupons />} />
                     </Route>
 
-                    {/* Protected — cần đăng nhập */}
                     <Route path="/cart" element={
                         <ProtectedRoute><Cart /></ProtectedRoute>
                     } />

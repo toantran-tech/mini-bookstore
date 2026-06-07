@@ -4,7 +4,6 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
 
-// Sửa lỗi icon bị thiếu của Leaflet khi dùng chung với Webpack/Vite
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -20,7 +19,6 @@ function LocationMarker({ position, setPosition, setAddressDetails }) {
         },
     });
 
-    // Lấy địa chỉ tự động (Reverse Geocoding)
     useEffect(() => {
         if (position) {
             const fetchAddress = async () => {
@@ -32,7 +30,6 @@ function LocationMarker({ position, setPosition, setAddressDetails }) {
                     if (res.data && res.data.address) {
                         const { road, suburb, city_district, city, state, country } = res.data.address;
                         
-                        // Ghép chuỗi địa chỉ gọn gàng
                         const streetArr = [];
                         if (road) streetArr.push(road);
                         if (suburb) streetArr.push(suburb);
@@ -61,7 +58,6 @@ function LocationMarker({ position, setPosition, setAddressDetails }) {
 }
 
 export default function MapPicker({ onConfirm, onClose, initialAddress }) {
-    // Tọa độ mặc định: Hồ Chí Minh
     const defaultCenter = { lat: 10.762622, lng: 106.660172 };
     
     const [position, setPosition] = useState(null);
@@ -69,7 +65,6 @@ export default function MapPicker({ onConfirm, onClose, initialAddress }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
 
-    // Tìm kiếm vị trí (Forward Geocoding)
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!searchQuery.trim()) return;
@@ -97,7 +92,6 @@ export default function MapPicker({ onConfirm, onClose, initialAddress }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col h-[85vh]">
                 
-                {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <h2 className="text-xl font-bold text-gray-800">📍 Chọn vị trí giao hàng</h2>
                     <button onClick={onClose} className="p-2 text-gray-400 hover:text-red-500 transition-colors bg-gray-50 hover:bg-red-50 rounded-full">
@@ -107,10 +101,8 @@ export default function MapPicker({ onConfirm, onClose, initialAddress }) {
                     </button>
                 </div>
 
-                {/* Body: Search + Map */}
                 <div className="flex-1 flex flex-col md:flex-row relative">
                     
-                    {/* Map Sidebar / Info */}
                     <div className="w-full md:w-80 bg-gray-50 p-6 flex flex-col gap-6 border-r border-gray-100 shadow-inner z-10">
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-2">Tìm kiếm địa điểm</label>
@@ -159,7 +151,6 @@ export default function MapPicker({ onConfirm, onClose, initialAddress }) {
                         </button>
                     </div>
 
-                    {/* Map Area */}
                     <div className="flex-1 h-full min-h-[300px] relative z-0">
                         <MapContainer 
                             center={defaultCenter} 

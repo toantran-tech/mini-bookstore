@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-// Khi build trên Vercel: VITE_API_URL = https://your-app.railway.app/api
-// Khi chạy local:        VITE_API_URL không có → fallback localhost:8080
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
 });

@@ -32,17 +32,14 @@ public class ReviewServiceImpl implements ReviewService {
         Book book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new RuntimeException("Sách không tồn tại"));
 
-        // Kiểm tra rating hợp lệ
         if (request.getRating() < 1 || request.getRating() > 5) {
             throw new IllegalArgumentException("Rating phải từ 1 đến 5");
         }
 
-        // Kiểm tra đã review chưa (1 user chỉ review 1 cuốn sách 1 lần)
         if (reviewRepository.existsByUserIdAndBookId(user.getId(), book.getId())) {
             throw new IllegalStateException("Bạn đã đánh giá cuốn sách này rồi!");
         }
 
-        // Kiểm tra đã mua và nhận hàng chưa
         if (!orderRepository.hasUserPurchasedAndReceivedBook(username, book.getId())) {
             throw new IllegalStateException("Bạn phải mua và nhận hàng thành công thì mới được đánh giá!");
         }
@@ -70,7 +67,6 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Review không tồn tại"));
 
-        // Chỉ owner hoặc admin mới được xóa
         if (!review.getUser().getUsername().equals(username)) {
             throw new SecurityException("Bạn không có quyền xóa review này!");
         }
@@ -91,11 +87,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public boolean canReview(String username, Long bookId) {
-        // Nếu user chưa tồn tại, chưa mua, hoặc chưa nhận hàng -> false
         if (!orderRepository.hasUserPurchasedAndReceivedBook(username, bookId)) {
             return false;
         }
-        // Thêm điều kiện: nếu đã review rồi thì ko cho review nữa
         User user = userRepository.findByUsername(username).orElse(null);
         if (user != null && reviewRepository.existsByUserIdAndBookId(user.getId(), bookId)) {
             return false;
@@ -103,7 +97,6 @@ public class ReviewServiceImpl implements ReviewService {
         return true;
     }
 
-    // ===== HELPER =====
     private ReviewResponse toResponse(Review review) {
         return new ReviewResponse(
                 review.getId(),

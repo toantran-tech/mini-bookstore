@@ -5,7 +5,6 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
-// ---- Màu sắc cho biểu đồ Pie ----
 const STATUS_COLORS = {
     Pending: '#f59e0b',
     Processing: '#3b82f6',
@@ -15,7 +14,6 @@ const STATUS_COLORS = {
 };
 const PIE_COLORS = ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#ef4444'];
 
-// ---- Stat Card đơn giản ----
 function StatCard({ icon, label, value, sub, color }) {
     return (
         <div className={`relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl shadow-gray-200/40 p-6 flex items-center gap-5`}>
@@ -27,13 +25,11 @@ function StatCard({ icon, label, value, sub, color }) {
                 <p className="text-gray-900 text-2xl font-black mt-0.5">{value}</p>
                 {sub && <p className="text-gray-400 text-xs mt-0.5 font-medium">{sub}</p>}
             </div>
-            {/* decorative glow */}
             <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-[0.15] blur-2xl ${color.replace('text-', 'bg-')}`} />
         </div>
     );
 }
 
-// ---- Custom Tooltip doanh thu ----
 function RevenueTooltip({ active, payload, label }) {
     if (active && payload && payload.length) {
         return (
@@ -83,12 +79,10 @@ export default function Dashboard() {
         <div className="text-red-600 bg-red-50 border border-red-200 p-4 rounded-xl font-medium">{error}</div>
     );
 
-    // Chuẩn bị data cho Pie Chart
     const pieData = stats.ordersByStatus
         ? Object.entries(stats.ordersByStatus).map(([name, value]) => ({ name, value }))
         : [];
 
-    // Format tháng cho chart doanh thu
     const revenueData = (stats.revenueByMonth || []).map(d => ({
         month: d.month,
         revenue: d.revenue,
@@ -96,7 +90,6 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-8">
-            {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight">Thống kê</h1>
@@ -110,7 +103,6 @@ export default function Dashboard() {
                 </button>
             </div>
 
-            {/* Stat Cards */}
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
                     icon="💰"
@@ -142,10 +134,8 @@ export default function Dashboard() {
                 />
             </div>
 
-            {/* Row 2: Revenue Chart + Pie Chart */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-                {/* Biểu đồ doanh thu theo tháng — chiếm 2/3 */}
                 <div className="xl:col-span-2 rounded-3xl border border-gray-100 bg-white shadow-xl shadow-gray-200/40 p-7">
                     <h2 className="text-gray-900 font-black text-lg mb-1">📈 Doanh Thu Theo Tháng</h2>
                     <p className="text-gray-400 text-xs mb-6 font-semibold uppercase tracking-wider">12 tháng gần nhất (đơn đã giao)</p>
@@ -185,7 +175,6 @@ export default function Dashboard() {
                     )}
                 </div>
 
-                {/* Biểu đồ Pie trạng thái đơn — chiếm 1/3 */}
                 <div className="rounded-3xl border border-gray-100 bg-white shadow-xl shadow-gray-200/40 p-7 flex flex-col">
                     <h2 className="text-gray-900 font-black text-lg mb-1">🥧 Trạng Thái Đơn</h2>
                     <p className="text-gray-400 text-xs mb-2 font-semibold uppercase tracking-wider">Phân bố theo trạng thái</p>
@@ -224,7 +213,6 @@ export default function Dashboard() {
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            {/* Legend */}
                             <ul className="space-y-2.5 mt-2">
                                 {pieData.map((entry, i) => (
                                     <li key={entry.name} className="flex items-center justify-between text-sm">
@@ -244,7 +232,6 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Row 3: Top 5 Books */}
             <div className="rounded-3xl border border-gray-100 bg-white shadow-xl shadow-gray-200/40 p-7">
                 <h2 className="text-gray-900 font-black text-lg mb-1">🏆 Top 5 Sách Bán Chạy</h2>
                 <p className="text-gray-400 text-xs mb-6 font-semibold uppercase tracking-wider">Dựa trên số lượng đã bán</p>

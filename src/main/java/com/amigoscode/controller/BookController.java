@@ -18,12 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * BookController — xử lý tất cả request liên quan đến sách.
- *
- * @Tag  : nhóm tất cả endpoint này vào section "Books" trên Swagger UI
- *         → thay vì hiện tên class, Swagger sẽ hiện tên "Books" dễ đọc hơn
- */
 @Tag(name = "Books", description = "API quản lý sách — tìm kiếm, lọc, phân trang, top sách")
 @RestController
 @RequestMapping("/api/books")
@@ -32,13 +26,7 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    // ─── PUBLIC ENDPOINTS (không cần đăng nhập) ──────────────────────────────
 
-    /**
-     * @Operation  : mô tả endpoint này làm gì (hiện trên Swagger UI)
-     *   summary   : tiêu đề ngắn — hiện ở dạng collapsed
-     *   description: mô tả dài — hiện khi expand
-     */
     @Operation(
             summary = "Lấy tất cả sách (không phân trang)",
             description = "Trả về toàn bộ danh sách sách. Dùng nội bộ hoặc cho dropdown."
@@ -48,9 +36,6 @@ public class BookController {
         return bookService.getAllBooks();
     }
 
-    /**
-     * @Parameter : mô tả từng query param để Swagger hiển thị ví dụ và tooltip
-     */
     @Operation(
             summary = "Lấy sách có phân trang + filter đa điều kiện",
             description = "Hỗ trợ tìm kiếm theo từ khóa, lọc theo danh mục, khoảng giá, sắp xếp và phân trang."
@@ -87,10 +72,6 @@ public class BookController {
         return bookService.getAllBooks(search, author, isbn, categoryName, minPrice, maxPrice, sortBy, page, size);
     }
 
-    /**
-     * @ApiResponses : mô tả các HTTP status code có thể trả về
-     *   Swagger sẽ hiện bảng "Responses" với mô tả từng code
-     */
     @Operation(
             summary = "Lấy chi tiết 1 sách theo ID",
             description = "Trả về thông tin đầy đủ của sách và tự động tăng viewCount."
@@ -127,9 +108,6 @@ public class BookController {
         return ResponseEntity.ok(bookService.getSimilarBooks(id));
     }
 
-    // ─── ADMIN ENDPOINTS (cần JWT + role ADMIN) ───────────────────────────────
-    // @SecurityRequirement: chỉ định endpoint này cần JWT trong Swagger UI
-    // (các endpoint public không cần annotation này)
 
     @Operation(
             summary = "[ADMIN] Thêm sách mới",

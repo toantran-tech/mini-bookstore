@@ -17,7 +17,6 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
                 <div className="flex items-center justify-between h-16">
 
-                    {/* Logo */}
                     <Link to="/" className="flex items-center gap-2">
                         <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
                             <span className="text-white font-black text-sm">MB</span>
@@ -27,7 +26,6 @@ export default function Navbar() {
                         </span>
                     </Link>
 
-                    {/* Nav links */}
                     <div className="hidden md:flex items-center gap-6">
                         <Link to="/" className="text-sm font-semibold text-gray-600 hover:text-indigo-600 transition">
                             Trang chủ
@@ -37,7 +35,6 @@ export default function Navbar() {
                         </Link>
                         {user && (
                             <>
-                                {/* Cart */}
                                 <Link to="/cart" className="relative p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -49,7 +46,6 @@ export default function Navbar() {
                                     )}
                                 </Link>
 
-                                {/* Wishlist */}
                                 <Link to="/wishlist" className="relative p-2 text-gray-500 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-all hidden md:block">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -73,7 +69,6 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    {/* Auth */}
                     <div className="flex items-center gap-3">
                         {user ? (
                             <>

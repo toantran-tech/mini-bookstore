@@ -52,7 +52,6 @@ export default function ReviewSection({ bookId }) {
             setAvgRating(res.data.averageRating || 0);
             setTotalReviews(res.data.totalReviews || 0);
         } catch {
-            // ignore
         }
     };
 
@@ -96,7 +95,6 @@ export default function ReviewSection({ bookId }) {
         }
     };
 
-    // Tính phần trăm từng mức sao
     const starCounts = [5, 4, 3, 2, 1].map(s => ({
         star: s,
         count: reviews.filter(r => r.rating === s).length,
@@ -111,7 +109,6 @@ export default function ReviewSection({ bookId }) {
                 <div className="flex-1 h-px bg-gray-200" />
             </div>
 
-            {/* Rating summary */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6 flex flex-col sm:flex-row gap-6 items-center">
                 <div className="text-center flex-shrink-0">
                     <div className="text-6xl font-black text-indigo-600 leading-none">{avgRating.toFixed(1)}</div>
@@ -132,7 +129,6 @@ export default function ReviewSection({ bookId }) {
                 </div>
             </div>
 
-            {/* Form viết review */}
             {token ? (
                 canReview ? (
                     <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
@@ -176,7 +172,6 @@ export default function ReviewSection({ bookId }) {
                 </div>
             )}
 
-            {/* Danh sách review */}
             {reviews.length === 0 ? (
                 <div className="text-center py-10 text-slate-400">
                     <div className="text-5xl mb-3">💬</div>
@@ -200,7 +195,6 @@ export default function ReviewSection({ bookId }) {
                                     <span className="text-slate-300 text-xs">
                                         {new Date(r.createdAt).toLocaleDateString('vi-VN')}
                                     </span>
-                                    {/* Nút xóa (chỉ hiện nếu là review của mình) */}
                                     <button
                                         onClick={() => handleDelete(r.id)}
                                         className="text-slate-200 hover:text-red-400 transition text-lg leading-none"

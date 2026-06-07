@@ -42,26 +42,22 @@ public class EmailServiceImpl implements EmailService {
                       <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:40px 0;">
                         <tr><td align="center">
                           <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-                            <!-- Header -->
                             <tr>
                               <td style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:36px 40px;text-align:center;">
                                 <h1 style="margin:0;color:#fff;font-size:28px;font-weight:800;letter-spacing:-0.5px;">📚 Mini Bookstore</h1>
                                 <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:14px;">Xác thực tài khoản của bạn</p>
                               </td>
                             </tr>
-                            <!-- Body -->
                             <tr>
                               <td style="padding:40px;">
                                 <p style="margin:0 0 8px;color:#374151;font-size:16px;">Xin chào,</p>
                                 <p style="margin:0 0 28px;color:#6b7280;font-size:15px;line-height:1.6;">
                                   Mã OTP của bạn để hoàn tất đăng ký tài khoản tại <strong>Mini Bookstore</strong>:
                                 </p>
-                                <!-- OTP Box -->
                                 <div style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:2px dashed #818cf8;border-radius:12px;padding:28px;text-align:center;margin-bottom:28px;">
                                   <p style="margin:0 0 4px;color:#6366f1;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Mã xác thực của bạn</p>
                                   <span style="font-size:48px;font-weight:900;color:#4f46e5;letter-spacing:12px;">%s</span>
                                 </div>
-                                <!-- Warning -->
                                 <table width="100%%" style="background:#fff7ed;border-left:4px solid #f97316;border-radius:0 8px 8px 0;margin-bottom:24px;">
                                   <tr><td style="padding:14px 18px;">
                                     <p style="margin:0;color:#c2410c;font-size:13px;">⏱️ <strong>Mã có hiệu lực trong 5 phút.</strong> Không chia sẻ mã này với bất kỳ ai!</p>
@@ -70,7 +66,6 @@ public class EmailServiceImpl implements EmailService {
                                 <p style="margin:0;color:#9ca3af;font-size:13px;">Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email này.</p>
                               </td>
                             </tr>
-                            <!-- Footer -->
                             <tr>
                               <td style="background:#f9fafb;padding:20px 40px;text-align:center;border-top:1px solid #f3f4f6;">
                                 <p style="margin:0;color:#d1d5db;font-size:12px;">© 2025 Mini Bookstore · Hệ thống bán sách trực tuyến</p>
@@ -138,21 +133,18 @@ public class EmailServiceImpl implements EmailService {
                       <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:40px 0;">
                         <tr><td align="center">
                           <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-                            <!-- Header -->
                             <tr>
                               <td style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:36px 40px;">
                                 <h1 style="margin:0;color:#fff;font-size:26px;font-weight:800;">📚 Mini Bookstore</h1>
                                 <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:14px;">Xác nhận đơn hàng thành công</p>
                               </td>
                             </tr>
-                            <!-- Body -->
                             <tr><td style="padding:40px;">
                               <p style="margin:0 0 6px;color:#374151;font-size:16px;">Chào <strong>%s</strong>! 🎉</p>
                               <p style="margin:0 0 28px;color:#6b7280;font-size:15px;line-height:1.6;">
                                 Cảm ơn bạn đã đặt hàng tại Mini Bookstore. Đơn hàng của bạn đã được tiếp nhận thành công!
                               </p>
 
-                              <!-- Order Info -->
                               <table width="100%%" style="background:#f9fafb;border-radius:10px;margin-bottom:24px;">
                                 <tr>
                                   <td style="padding:18px 20px;">
@@ -174,7 +166,6 @@ public class EmailServiceImpl implements EmailService {
                                 </tr>
                               </table>
 
-                              <!-- Items -->
                               <h3 style="margin:0 0 12px;color:#1f2937;font-size:15px;font-weight:700;">📦 Sản phẩm đặt mua</h3>
                               <table width="100%%">
                                 %s
@@ -189,7 +180,6 @@ public class EmailServiceImpl implements EmailService {
                                 </tr>
                               </table>
                             </td></tr>
-                            <!-- Footer -->
                             <tr>
                               <td style="background:#f9fafb;padding:20px 40px;text-align:center;border-top:1px solid #f3f4f6;">
                                 <p style="margin:0 0 4px;color:#6b7280;font-size:13px;">Chúng tôi sẽ thông báo khi đơn hàng được giao.</p>

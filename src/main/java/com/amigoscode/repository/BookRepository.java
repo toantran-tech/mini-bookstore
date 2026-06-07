@@ -15,7 +15,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     Book findByAuthor(String author);
 
-    // Search theo tên HOẶC tác giả, hỗ trợ filter category + price range
     @Query("SELECT b FROM Book b WHERE " +
             "(:keyword IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "   OR LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +

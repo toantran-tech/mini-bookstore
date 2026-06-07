@@ -15,8 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Component
 public class JwtUtil {
 
-    // Đọc từ application.properties → đọc từ env var JWT_SECRET trên Railway
-    // Nếu không có env var thì dùng fallback (chỉ dùng khi chạy local)
     @Value("${jwt.secret:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}")
     private String secretKey;
 

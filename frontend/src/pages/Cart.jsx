@@ -47,7 +47,6 @@ export default function Cart() {
         <div className="min-h-screen bg-slate-50 py-10">
             <div className="max-w-5xl mx-auto px-4">
 
-                {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-slate-800">Giỏ Hàng</h1>
@@ -62,7 +61,6 @@ export default function Cart() {
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Danh sách sản phẩm */}
                     <div className="flex-1 flex flex-col gap-4">
                         {items.map((item, index) => (
                             <div
@@ -70,7 +68,6 @@ export default function Cart() {
                                 className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex items-center gap-5 hover:shadow-md transition-shadow duration-200"
                                 style={{ animationDelay: `${index * 60}ms` }}
                             >
-                                {/* Ảnh sách */}
                                 <div className="w-20 h-28 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 shadow">
                                     {item.imageUrl ? (
                                         <img
@@ -83,7 +80,6 @@ export default function Cart() {
                                     )}
                                 </div>
 
-                                {/* Thông tin */}
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-semibold text-slate-800 text-base leading-tight line-clamp-2 mb-1">
                                         {item.bookTitle}
@@ -94,7 +90,6 @@ export default function Cart() {
                                     </p>
                                 </div>
 
-                                {/* Điều chỉnh số lượng */}
                                 <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
                                     <button
                                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -113,14 +108,12 @@ export default function Cart() {
                                     </button>
                                 </div>
 
-                                {/* Subtotal */}
                                 <div className="text-right min-w-[90px]">
                                     <p className="font-bold text-slate-800 text-base">
                                         {item.subtotal?.toLocaleString('vi-VN')}đ
                                     </p>
                                 </div>
 
-                                {/* Xóa */}
                                 <button
                                     onClick={() => removeItem(item.id)}
                                     className="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all text-xl"
@@ -131,7 +124,6 @@ export default function Cart() {
                         ))}
                     </div>
 
-                    {/* Order Summary */}
                     <div className="w-full lg:w-80 flex-shrink-0">
                         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sticky top-24">
                             <h2 className="text-lg font-bold text-slate-800 mb-5">Tóm tắt đơn hàng</h2>
@@ -153,7 +145,6 @@ export default function Cart() {
                                 </div>
                             </div>
 
-                            {/* Success message */}
                             {message === 'success' && (
                                 <div className="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm text-center font-medium">
                                     ✅ Đặt hàng thành công! Đang chuyển hướng...

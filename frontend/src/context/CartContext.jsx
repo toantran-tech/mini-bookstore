@@ -9,7 +9,6 @@ export function CartProvider({ children }) {
 
     const isLoggedIn = () => !!localStorage.getItem('token');
 
-    // Fetch giỏ hàng từ DB
     const fetchCart = useCallback(async () => {
         if (!isLoggedIn()) { setCart(null); return; }
         try {
@@ -27,14 +26,12 @@ export function CartProvider({ children }) {
         fetchCart();
     }, [fetchCart]);
 
-    // Thêm sách vào giỏ
     const addItem = async (bookId, quantity = 1) => {
         if (!isLoggedIn()) return;
         const res = await api.post(`/cart/add?bookId=${bookId}&quantity=${quantity}`);
         setCart(res.data);
     };
 
-    // Cập nhật số lượng
     const updateQuantity = async (cartItemId, quantity) => {
         if (quantity <= 0) {
             await removeItem(cartItemId);
@@ -44,13 +41,11 @@ export function CartProvider({ children }) {
         setCart(res.data);
     };
 
-    // Xóa 1 món
     const removeItem = async (cartItemId) => {
         await api.delete(`/cart/item/${cartItemId}`);
         await fetchCart();
     };
 
-    // Xóa toàn bộ giỏ
     const clearCart = async () => {
         await api.delete('/cart/clear');
         await fetchCart();

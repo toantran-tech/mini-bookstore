@@ -32,7 +32,6 @@ export default function Checkout() {
     const { items, totalPrice, clearCart } = useCart();
     const navigate = useNavigate();
 
-    // Form state
     const [address, setAddress] = useState({ name: '', phone: '', street: '', city: '' });
     const [shippingMethod, setShippingMethod] = useState('STANDARD');
     const [couponCode, setCouponCode] = useState('');
@@ -47,7 +46,6 @@ export default function Checkout() {
     const discountAmount = couponResult?.valid ? couponResult.discountAmount : 0;
     const finalTotal = totalPrice + shippingFee - discountAmount;
 
-    // Validate coupon
     const handleValidateCoupon = async () => {
         if (!couponCode.trim()) return;
         setCouponLoading(true);
@@ -70,7 +68,6 @@ export default function Checkout() {
         setCouponResult(null);
     };
 
-    // Validate form
     const validateForm = () => {
         const e = {};
         if (!address.name.trim()) e.name = 'Vui lòng nhập họ tên';
@@ -113,10 +110,8 @@ export default function Checkout() {
                 <p className="text-slate-500 mb-8">Hoàn tất thông tin để đặt hàng</p>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* ===== LEFT: FORM ===== */}
                     <div className="flex-1 flex flex-col gap-6">
 
-                        {/* 1. Địa chỉ giao hàng */}
                         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
@@ -139,7 +134,6 @@ export default function Checkout() {
                                                 onChange={e => setAddress(prev => ({ ...prev, [field.key]: e.target.value }))}
                                                 className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-300 ${errors[field.key] ? 'border-red-400 bg-red-50' : 'border-slate-200 focus:border-indigo-400'}`}
                                             />
-                                            {/* Button to open map if it's the street/address field */}
                                             {(field.key === 'street') && (
                                                 <button 
                                                     type="button"
@@ -156,7 +150,6 @@ export default function Checkout() {
                             </div>
                         </div>
 
-                        {/* Map Picker Modal */}
                         {showMap && (
                             <MapPicker 
                                 onClose={() => setShowMap(false)}
@@ -171,7 +164,6 @@ export default function Checkout() {
                             />
                         )}
 
-                        {/* 2. Phương thức giao hàng */}
                         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
@@ -207,7 +199,6 @@ export default function Checkout() {
                             </div>
                         </div>
 
-                        {/* 3. Mã giảm giá */}
                         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
@@ -215,7 +206,6 @@ export default function Checkout() {
                             </div>
 
                             {couponResult?.valid ? (
-                                /* Coupon đã áp dụng thành công */
                                 <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
                                     <div className="flex items-center gap-3">
                                         <span className="text-2xl">🎉</span>
@@ -227,7 +217,6 @@ export default function Checkout() {
                                     <button onClick={removeCoupon} className="text-slate-400 hover:text-red-500 transition text-xl font-bold">×</button>
                                 </div>
                             ) : (
-                                /* Ô nhập mã */
                                 <div className="flex gap-3">
                                     <input
                                         type="text"
@@ -247,7 +236,6 @@ export default function Checkout() {
                                 </div>
                             )}
 
-                            {/* Thông báo lỗi coupon */}
                             {couponResult && !couponResult.valid && (
                                 <p className="mt-2 text-red-500 text-sm flex items-center gap-1">
                                     <span>❌</span> {couponResult.message}
@@ -256,12 +244,10 @@ export default function Checkout() {
                         </div>
                     </div>
 
-                    {/* ===== RIGHT: ORDER SUMMARY ===== */}
                     <div className="w-full lg:w-80 flex-shrink-0">
                         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 sticky top-24">
                             <h2 className="text-lg font-bold text-slate-800 mb-4">Đơn hàng ({items.length} sản phẩm)</h2>
 
-                            {/* Danh sách sản phẩm */}
                             <div className="space-y-3 mb-4 max-h-52 overflow-y-auto pr-1">
                                 {items.map(item => (
                                     <div key={item.id} className="flex items-center gap-3">

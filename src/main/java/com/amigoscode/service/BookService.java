@@ -10,7 +10,6 @@ public interface BookService {
     Book addBook(Book book);
     List<BookResponse> getAllBooks();
 
-    // Tìm kiếm + lọc đa điều kiện
     Page<BookResponse> getAllBooks(
             String search,
             String author,
@@ -27,12 +26,9 @@ public interface BookService {
     BookResponse updateBook(Long id, BookResponse bookResponse);
     void deleteBookById(Long id);
 
-    // Sản phẩm tương tự (cùng category)
     List<BookResponse> getSimilarBooks(Long id);
 
-    // Top 10 bán chạy + xem nhiều
     java.util.Map<String, List<BookResponse>> getTopBooks();
 
-    // Tăng lượt xem khi user mở trang chi tiết
     void incrementViewCount(Long id);
 }

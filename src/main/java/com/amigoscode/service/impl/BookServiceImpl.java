@@ -50,7 +50,6 @@ public class BookServiceImpl implements BookService {
             String sortBy,
             int page,
             int size) {
-        // Xác định sort direction
         Sort sort = switch (sortBy == null ? "" : sortBy) {
             case "newest" -> Sort.by(Sort.Direction.DESC, "createdAt");
             case "bestseller" -> Sort.by(Sort.Direction.DESC, "soldCount");
@@ -61,7 +60,6 @@ public class BookServiceImpl implements BookService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        // Chuẩn hóa params
         String keyword = (search == null || search.isBlank()) ? null : search;
         String authorKeyword = (author == null || author.isBlank()) ? null : author;
         String catName = (categoryName == null || categoryName.isBlank()) ? null : categoryName;
@@ -145,7 +143,6 @@ public class BookServiceImpl implements BookService {
         });
     }
 
-    // ===================== HELPER =====================
 
     private BookResponse mapToBookResponse(Book book) {
         BookResponse response = new BookResponse();

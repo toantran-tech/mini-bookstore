@@ -25,31 +25,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit Test cho BookServiceImpl.
- *
- * Công cụ dùng:
- * - JUnit 5 : @Test, @BeforeEach, @DisplayName
- * - Mockito : @Mock, @InjectMocks, when/verify
- * - AssertJ : assertThat — cú pháp đọc tự nhiên hơn JUnit assert
- *
- * Nguyên tắc: KHÔNG kết nối DB thật. Mọi thứ đều được "mock" (giả lập).
- */
 @ExtendWith(MockitoExtension.class) // ← Bật Mockito trong JUnit 5
 class BookServiceImplTest {
 
-    // ── @Mock: giả lập BookRepository, KHÔNG gọi DB thật ───────────────────
     @Mock
     private BookRepository bookRepository;
 
-    // ── @InjectMocks: tạo BookServiceImpl và tự động inject @Mock vào đó ───
     @InjectMocks
     private BookServiceImpl bookService;
 
     private Book sampleBook;
     private Category category;
 
-    // ── @BeforeEach: chạy trước MỖI test, khởi tạo dữ liệu mẫu ────────────
     @BeforeEach
     void setUp() {
         category = new Category();
@@ -69,20 +56,14 @@ class BookServiceImplTest {
         sampleBook.setViewCount(200);
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // addBook
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("addBook: thành công khi dữ liệu hợp lệ")
     void addBook_shouldReturnSavedBook_whenValid() {
-        // GIVEN – khi bookRepository.save() được gọi, trả về sampleBook
         when(bookRepository.save(sampleBook)).thenReturn(sampleBook);
 
-        // WHEN – gọi method cần test
         Book result = bookService.addBook(sampleBook);
 
-        // THEN – kiểm tra kết quả
         assertThat(result).isNotNull();
         assertThat(result.getTitle()).isEqualTo("Clean Code");
         verify(bookRepository, times(1)).save(sampleBook); // đảm bảo save() được gọi đúng 1 lần
@@ -93,7 +74,6 @@ class BookServiceImplTest {
     void addBook_shouldThrowException_whenPriceIsNegative() {
         sampleBook.setPrice(-5.0);
 
-        // THEN – gọi method và kỳ vọng nó throw exception
         assertThatThrownBy(() -> bookService.addBook(sampleBook))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Price cannot be negative");
@@ -101,9 +81,6 @@ class BookServiceImplTest {
         verify(bookRepository, never()).save(any()); // đảm bảo save() KHÔNG được gọi
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // getBookById
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("getBookById: trả về BookResponse đầy đủ thông tin khi tìm thấy")
@@ -131,9 +108,6 @@ class BookServiceImplTest {
                 .hasMessageContaining("Book not found with ID: 99");
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // getAllBooks (no filter — simple)
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("getAllBooks: trả về danh sách đúng số lượng")
@@ -156,14 +130,10 @@ class BookServiceImplTest {
         assertThat(result).isEmpty();
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // getAllBooks (có filter + pagination)
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("getAllBooks (filter): trả về Page<BookResponse> đúng khi có kết quả")
     void getAllBooks_withFilter_shouldReturnPage() {
-        // Giả lập repository trả về 1 trang có 1 sách
         Page<Book> fakePage = new PageImpl<>(List.of(sampleBook));
         when(bookRepository.findWithFilters(any(), any(), any(), any(), any(), any(), any(Pageable.class)))
                 .thenReturn(fakePage);
@@ -187,9 +157,6 @@ class BookServiceImplTest {
         assertThat(result).isNotNull();
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // updateBook
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("updateBook: cập nhật thành công và trả về BookResponse mới")
@@ -221,9 +188,6 @@ class BookServiceImplTest {
                 .hasMessageContaining("Book not found with ID: 99");
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // deleteBookById
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("deleteBookById: xóa thành công khi tìm thấy")
@@ -247,9 +211,6 @@ class BookServiceImplTest {
         verify(bookRepository, never()).delete(any());
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // getSimilarBooks
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("getSimilarBooks: trả về danh sách sách cùng category")
@@ -296,9 +257,6 @@ class BookServiceImplTest {
                 .hasMessageContaining("Book not found with ID: 99");
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // getTopBooks
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("getTopBooks: trả về Map gồm bestsellers và mostViewed")
@@ -326,9 +284,6 @@ class BookServiceImplTest {
         assertThat(result.get("mostViewed")).isEmpty();
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // incrementViewCount
-    // ════════════════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("incrementViewCount: tăng viewCount thêm 1 khi tìm thấy sách")
@@ -338,7 +293,6 @@ class BookServiceImplTest {
 
         bookService.incrementViewCount(1L);
 
-        // Kiểm tra viewCount đã được tăng lên 201
         assertThat(sampleBook.getViewCount()).isEqualTo(201);
         verify(bookRepository, times(1)).save(sampleBook);
     }
@@ -348,7 +302,6 @@ class BookServiceImplTest {
     void incrementViewCount_shouldDoNothing_whenBookNotFound() {
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // ifPresent nên không throw exception, chỉ bỏ qua
         bookService.incrementViewCount(99L);
 
         verify(bookRepository, never()).save(any());

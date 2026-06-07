@@ -7,7 +7,6 @@ export default function ManageCoupons() {
     const [showModal, setShowModal] = useState(false);
     const [editingCoupon, setEditingCoupon] = useState(null);
 
-    // Form state
     const [formData, setFormData] = useState({
         code: '',
         discountType: 'PERCENT',
@@ -190,7 +189,6 @@ export default function ManageCoupons() {
                 </table>
             </div>
 
-            {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
                     <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">

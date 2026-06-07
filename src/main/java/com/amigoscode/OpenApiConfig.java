@@ -9,15 +9,6 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * OpenApiConfig — cấu hình Swagger UI cho toàn project.
- *
- * Sau khi chạy server, truy cập: http://localhost:8080/swagger-ui/index.html
- *
- * Có 2 phần chính:
- *  1. Info        — thông tin project (title, version, mô tả) hiển thị trên đầu trang Swagger
- *  2. Security    — cho phép nhập JWT token vào nút "Authorize" để test API cần xác thực
- */
 @Configuration
 public class OpenApiConfig {
 
@@ -26,7 +17,6 @@ public class OpenApiConfig {
         final String securitySchemeName = "bearerAuth";
 
         return new OpenAPI()
-                // ── 1. Thông tin project ─────────────────────────────────
                 .info(new Info()
                         .title("Mini Bookstore API")
                         .description(
@@ -48,16 +38,12 @@ public class OpenApiConfig {
                         )
                 )
 
-                // ── 2. Cấu hình xác thực JWT ─────────────────────────────
-                // Mục đích: Hiện nút "Authorize" trên Swagger UI để nhập JWT token
-                // khi test các API cần đăng nhập (như tạo đơn hàng, xóa sách)
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(
                         new Components()
                                 .addSecuritySchemes(securitySchemeName,
                                         new SecurityScheme()
                                                 .name(securitySchemeName)
-                                                // Type HTTP + scheme "bearer" = chuẩn JWT
                                                 .type(SecurityScheme.Type.HTTP)
                                                 .scheme("bearer")
                                                 .bearerFormat("JWT")

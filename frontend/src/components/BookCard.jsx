@@ -26,7 +26,6 @@ export default function BookCard({ book }) {
         <Link to={`/books/${book.id}`} className="group block">
             <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-100 hover:-translate-y-1 flex flex-col h-full">
 
-                {/* Ảnh bìa */}
                 <div className="relative h-52 bg-gray-50 overflow-hidden">
                     {book.imageUrl ? (
                         <img
@@ -41,7 +40,6 @@ export default function BookCard({ book }) {
                         </div>
                     )}
 
-                    {/* Wishlist Heart */}
                     <button
                         onClick={handleToggleWishlist}
                         className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white backdrop-blur shadow-sm transition-all z-10"
@@ -52,7 +50,6 @@ export default function BookCard({ book }) {
                         </svg>
                     </button>
 
-                    {/* Badges */}
                     {book.soldCount > 100 && (
                         <span className="absolute top-3 left-3 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow z-10">HOT</span>
                     )}
@@ -67,7 +64,6 @@ export default function BookCard({ book }) {
                         </span>
                     )}
 
-                    {/* Hover overlay */}
                     <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/5 transition-colors duration-300 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
                         <span className="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                             Xem chi tiết →
@@ -75,7 +71,6 @@ export default function BookCard({ book }) {
                     </div>
                 </div>
 
-                {/* Nội dung */}
                 <div className="p-4 flex flex-col flex-1">
                     <p className="text-xs text-indigo-500 font-bold mb-1 uppercase tracking-wide">{book.categoryName}</p>
                     <h3 className="text-sm font-bold text-gray-800 mb-2 line-clamp-2 leading-snug min-h-[2.5rem] group-hover:text-indigo-600 transition">

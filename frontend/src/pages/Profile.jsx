@@ -16,7 +16,6 @@ export default function Profile() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Lấy tab từ URL, mặc định là 'info'
     const queryParams = new URLSearchParams(location.search);
     const initialTab = queryParams.get('tab') || 'info';
 
@@ -33,7 +32,6 @@ export default function Profile() {
         navigate(`/profile?tab=${tab}`);
     };
 
-    // Form thông tin
     const [profile, setProfile] = useState({ fullName: '', phone: '', address: '', email: '', avatarUrl: '' });
     const [savingProfile, setSavingProfile] = useState(false);
     const fileInputRef = useRef(null);
@@ -59,11 +57,9 @@ export default function Profile() {
         }
     };
 
-    // Form đổi mật khẩu
     const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
     const [savingPassword, setSavingPassword] = useState(false);
 
-    // Lịch sử đơn hàng
     const [orders, setOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
 
@@ -147,7 +143,6 @@ export default function Profile() {
         <div className="min-h-[calc(100vh-64px)] bg-slate-50 py-10 px-4">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
 
-                {/* Sidebar Navigation */}
                 <div className="w-full md:w-64 flex-shrink-0">
                     <h2 className="text-xl font-black text-gray-900 mb-6 px-4">Cài đặt tài khoản</h2>
                     <nav className="flex flex-col gap-1">
@@ -181,16 +176,13 @@ export default function Profile() {
                     </nav>
                 </div>
 
-                {/* Main Content Area */}
                 <div className="flex-1">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
 
-                        {/* Tab: Hồ sơ cá nhân */}
                         {activeTab === 'info' && (
                             <div className="animate-fade-in">
                                 <h3 className="text-xl font-bold text-gray-900 mb-8 border-b border-gray-100 pb-4">Thông tin cá nhân</h3>
 
-                                {/* Avatar Section */}
                                 <div className="flex items-center gap-6 mb-10">
                                     <div className="relative">
                                         {profile.avatarUrl ? (
@@ -305,7 +297,6 @@ export default function Profile() {
                             </div>
                         )}
 
-                        {/* Tab: Đổi mật khẩu */}
                         {activeTab === 'password' && (
                             <div className="animate-fade-in max-w-xl">
                                 <h3 className="text-xl font-bold text-gray-900 mb-8 border-b border-gray-100 pb-4">Đổi mật khẩu</h3>
@@ -356,7 +347,6 @@ export default function Profile() {
                             </div>
                         )}
 
-                        {/* Tab: Lịch sử đơn hàng */}
                         {activeTab === 'orders' && (
                             <div className="animate-fade-in">
                                 <h3 className="text-xl font-bold text-gray-900 mb-8 border-b border-gray-100 pb-4">Lịch sử giao dịch</h3>
@@ -419,7 +409,6 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Map Modal cho Hồ sơ */}
                 {showMap && (
                     <MapPicker 
                         onClose={() => setShowMap(false)}

@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-// ─── Rank Badge ───────────────────────────────────────────────────────────────
 const RankBadge = ({ rank }) => {
     const colors = {
         1: 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-amber-200',
@@ -17,7 +16,6 @@ const RankBadge = ({ rank }) => {
     );
 };
 
-// ─── Skeleton Card ─────────────────────────────────────────────────────────────
 const SkeletonCard = () => (
     <div className="flex-shrink-0 w-52 bg-white rounded-2xl overflow-hidden border border-gray-100 animate-pulse">
         <div className="h-44 bg-gray-200"></div>
@@ -30,7 +28,6 @@ const SkeletonCard = () => (
     </div>
 );
 
-// ─── Horizontal Product Card ──────────────────────────────────────────────────
 const HorizontalBookCard = ({ book, rank, onClick }) => (
     <div onClick={() => onClick(book.id)}
         className="group flex-shrink-0 w-52 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-indigo-100 hover:-translate-y-1 overflow-hidden">
@@ -55,7 +52,6 @@ const HorizontalBookCard = ({ book, rank, onClick }) => (
     </div>
 );
 
-// ─── Horizontal Carousel with Pagination ─────────────────────────────────────
 const HorizontalCarousel = ({ books, loading, onBookClick, itemsPerPage = 5 }) => {
     const [currentPage, setCurrentPage] = useState(0);
     const totalPages = Math.ceil(books.length / itemsPerPage);
@@ -72,7 +68,6 @@ const HorizontalCarousel = ({ books, loading, onBookClick, itemsPerPage = 5 }) =
 
     return (
         <div className="relative">
-            {/* Prev button */}
             <button onClick={() => setCurrentPage(p => Math.max(0, p - 1))} disabled={currentPage === 0}
                 className={`absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition-all
                     ${currentPage === 0
@@ -83,7 +78,6 @@ const HorizontalCarousel = ({ books, loading, onBookClick, itemsPerPage = 5 }) =
                 </svg>
             </button>
 
-            {/* Cards */}
             <div className="overflow-hidden mx-4">
                 <div className="flex gap-4 transition-all duration-500">
                     {visibleBooks.map((b, i) => (
@@ -92,7 +86,6 @@ const HorizontalCarousel = ({ books, loading, onBookClick, itemsPerPage = 5 }) =
                 </div>
             </div>
 
-            {/* Next button */}
             <button onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1}
                 className={`absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition-all
                     ${currentPage >= totalPages - 1
@@ -103,7 +96,6 @@ const HorizontalCarousel = ({ books, loading, onBookClick, itemsPerPage = 5 }) =
                 </svg>
             </button>
 
-            {/* Dot indicators */}
             {totalPages > 1 && (
                 <div className="flex justify-center gap-2 mt-6">
                     {[...Array(totalPages)].map((_, i) => (
@@ -120,7 +112,6 @@ const HorizontalCarousel = ({ books, loading, onBookClick, itemsPerPage = 5 }) =
     );
 };
 
-// ─── Section Header ────────────────────────────────────────────────────────────
 const SectionHeader = ({ icon, title, subtitle, badge, badgeColor }) => (
     <div className="flex items-end justify-between mb-8">
         <div>
@@ -138,9 +129,6 @@ const SectionHeader = ({ icon, title, subtitle, badge, badgeColor }) => (
     </div>
 );
 
-// ════════════════════════════════════════════════════════════════════════════
-//  TOP BOOKS PAGE
-// ════════════════════════════════════════════════════════════════════════════
 export default function TopBooks() {
     const navigate = useNavigate();
     const [data, setData] = useState({ bestsellers: [], mostViewed: [] });
@@ -177,7 +165,6 @@ export default function TopBooks() {
         <div className="min-h-screen bg-gray-50 pb-16">
             <main className="max-w-7xl mx-auto px-4 py-8">
 
-                {/* Page header */}
                 <div className="text-center mb-10">
                     <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-full text-sm font-bold mb-4">
                         🏆 Bảng xếp hạng sách
@@ -191,7 +178,6 @@ export default function TopBooks() {
                     </Link>
                 </div>
 
-                {/* Tab switcher */}
                 <div className="flex justify-center gap-2 mb-10">
                     {tabs.map(tab => (
                         <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -204,14 +190,12 @@ export default function TopBooks() {
                     ))}
                 </div>
 
-                {/* ── BESTSELLERS SECTION ── */}
                 {(activeTab === 'all' || activeTab === 'bestsellers') && (
                     <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-8">
                         <SectionHeader icon="🔥" title="Top 10 Bán Chạy Nhất"
                             subtitle="Những cuốn sách được mua nhiều nhất bởi khách hàng"
                             badge="Bestseller" badgeColor="bg-rose-100 text-rose-600 border border-rose-200" />
 
-                        {/* Top 3 podium cards */}
                         {!loading && data.bestsellers.length > 0 && (
                             <div className="grid grid-cols-3 gap-4 mb-8">
                                 {data.bestsellers.slice(0, 3).map((b, i) => (
@@ -231,14 +215,12 @@ export default function TopBooks() {
                     </section>
                 )}
 
-                {/* ── MOST VIEWED SECTION ── */}
                 {(activeTab === 'all' || activeTab === 'viewed') && (
                     <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
                         <SectionHeader icon="👁️" title="Xem Nhiều Nhất"
                             subtitle="Những cuốn sách được khách hàng quan tâm và xem nhiều nhất"
                             badge="Trending" badgeColor="bg-purple-100 text-purple-600 border border-purple-200" />
 
-                        {/* Top 3 most viewed */}
                         {!loading && data.mostViewed.length > 0 && (
                             <div className="grid grid-cols-3 gap-4 mb-8">
                                 {data.mostViewed.slice(0, 3).map((b, i) => (
@@ -258,7 +240,6 @@ export default function TopBooks() {
                     </section>
                 )}
 
-                {/* ── Leaderboard table (tab all) ── */}
                 {activeTab === 'all' && !loading && data.bestsellers.length > 0 && (
                     <section className="mt-8 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="p-6 border-b border-gray-100">

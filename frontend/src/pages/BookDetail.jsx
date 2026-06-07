@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import BookCard from '../components/BookCard';
 import ReviewSection from '../components/ReviewSection';
 
-// Swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Thumbs, FreeMode } from 'swiper/modules';
 import 'swiper/css';
@@ -91,7 +90,6 @@ export default function BookDetail() {
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-5xl mx-auto px-4 py-8">
 
-                {/* Breadcrumb */}
                 <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
                     <Link to="/" className="hover:text-indigo-600 transition font-medium">Trang chủ</Link>
                     <span>/</span>
@@ -101,11 +99,9 @@ export default function BookDetail() {
                     <span className="text-gray-700 font-semibold truncate max-w-xs">{book.title}</span>
                 </nav>
 
-                {/* Main card */}
                 <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
 
-                        {/* ===== ẢNH / SWIPER ===== */}
                         <div className="p-6 bg-gray-50 border-r border-gray-100">
                             {images && images.length > 1 ? (
                                 <>
@@ -142,10 +138,8 @@ export default function BookDetail() {
                             )}
                         </div>
 
-                        {/* ===== THÔNG TIN ===== */}
                         <div className="p-8 flex flex-col">
 
-                            {/* Category */}
                             {book.categoryName && (
                                 <span className="inline-block self-start bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full mb-3 border border-indigo-200">
                                     📌 {book.categoryName}
@@ -155,7 +149,6 @@ export default function BookDetail() {
                             <h1 className="text-3xl font-extrabold text-gray-900 leading-snug mb-2">{book.title}</h1>
                             <p className="text-gray-500 text-base mb-4">✍️ <span className="text-gray-700 font-medium">{book.author}</span></p>
 
-                            {/* Giá + sold count */}
                             <div className="flex items-baseline gap-4 mb-4">
                                 <span className="text-4xl font-black text-indigo-600">
                                     {book.price?.toLocaleString('vi-VN')}đ
@@ -172,7 +165,6 @@ export default function BookDetail() {
                                 )}
                             </div>
 
-                            {/* Stock indicator */}
                             <div className="mb-5">
                                 <div className="flex justify-between text-xs mb-1.5">
                                     <span className={`font-semibold ${stock.color}`}>{stock.label}</span>
@@ -184,14 +176,12 @@ export default function BookDetail() {
                                 </div>
                             </div>
 
-                            {/* Mô tả */}
                             {book.description && (
                                 <p className="text-gray-600 text-sm leading-relaxed mb-6 border-l-4 border-indigo-200 pl-4 bg-indigo-50 py-3 rounded-r-xl">
                                     {book.description}
                                 </p>
                             )}
 
-                            {/* Quantity selector */}
                             {book.stock > 0 && (
                                 <div className="flex items-center gap-4 mb-4">
                                     <span className="text-gray-600 text-sm font-medium">Số lượng:</span>
@@ -208,7 +198,6 @@ export default function BookDetail() {
                                 </div>
                             )}
 
-                            {/* Tổng */}
                             {book.stock > 0 && quantity > 1 && (
                                 <div className="flex items-center gap-2 mb-4 text-sm">
                                     <span className="text-gray-500">Tổng:</span>
@@ -216,14 +205,12 @@ export default function BookDetail() {
                                 </div>
                             )}
 
-                            {/* Message */}
                             {addedMsg && (
                                 <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 rounded-xl mb-4 font-medium">
                                     {addedMsg}
                                 </div>
                             )}
 
-                            {/* Add to cart */}
                             <button onClick={handleAddToCart} disabled={book.stock === 0}
                                 className={`w-full py-4 rounded-2xl font-bold text-lg transition shadow-lg ${
                                     book.stock === 0
@@ -233,7 +220,6 @@ export default function BookDetail() {
                                 {book.stock === 0 ? '😔 Hết hàng' : `🛒 Thêm ${quantity > 1 ? quantity + ' cuốn ' : ''}vào giỏ hàng`}
                             </button>
 
-                            {/* Policy chips */}
                             <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
                                 {[
                                     { icon: '🚚', label: 'Giao hàng', value: 'Toàn quốc' },
@@ -254,7 +240,6 @@ export default function BookDetail() {
                     </div>
                 </div>
 
-                {/* ===== SÁCH TƯƠNG TỰ ===== */}
                 {similarBooks.length > 0 && (
                     <section className="mt-12">
                         <div className="flex items-center gap-3 mb-6">
@@ -268,7 +253,6 @@ export default function BookDetail() {
                     </section>
                 )}
 
-                {/* ===== REVIEW & RATING ===== */}
                 <ReviewSection bookId={book.id} />
 
             </div>
