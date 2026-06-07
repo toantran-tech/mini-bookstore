@@ -89,19 +89,5 @@ Access the application at `http://localhost:5173`.
 
 ---
 
-## 📸 Screenshots
-
-*(Replace these placeholders with actual screenshots of your application)*
-
-| Home Page | Admin Dashboard |
-|---|---|
-| ![Home](https://placehold.co/600x400?text=Home+Page) | ![Admin](https://placehold.co/600x400?text=Admin+Dashboard) |
-
-| Advanced Search | Shopping Cart |
-|---|---|
-| ![Search](https://placehold.co/600x400?text=Advanced+Search) | ![Cart](https://placehold.co/600x400?text=Shopping+Cart) |
-
----
-
 ## 📄 License
 This project is open-source and available under the [MIT License](LICENSE).
