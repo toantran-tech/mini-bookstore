@@ -13,6 +13,7 @@ import com.amigoscode.repository.BookRepository;
 import com.amigoscode.repository.CouponRepository;
 import com.amigoscode.repository.OrderRepository;
 import com.amigoscode.repository.UserRepository;
+import com.amigoscode.service.EmailService;
 import com.amigoscode.service.OrderService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -28,15 +29,18 @@ public class OrderServiceImpl implements OrderService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final CouponRepository couponRepository;
+    private final EmailService emailService;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             BookRepository bookRepository,
                             UserRepository userRepository,
-                            CouponRepository couponRepository) {
+                            CouponRepository couponRepository,
+                            EmailService emailService) {
         this.orderRepository = orderRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
         this.couponRepository = couponRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -110,7 +114,11 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(subtotal + order.getShippingFee() - discountAmount);
         order.setOrderDetails(orderDetails);
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        emailService.sendOrderConfirmationEmail(user, savedOrder);
+
+        return savedOrder;
     }
 
     // Tính phí ship theo phương thức
