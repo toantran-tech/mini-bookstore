@@ -35,12 +35,12 @@ public class AuthController {
     private final OtpStore otpStore;
 
     public AuthController(@Lazy AuthenticationManager authenticationManager,
-                          UserDetailsService userDetailsService,
-                          JwtUtil jwtUtil,
-                          PasswordEncoder passwordEncoder,
-                          UserRepository userRepository,
-                          EmailService emailService,
-                          OtpStore otpStore) {
+            UserDetailsService userDetailsService,
+            JwtUtil jwtUtil,
+            PasswordEncoder passwordEncoder,
+            UserRepository userRepository,
+            EmailService emailService,
+            OtpStore otpStore) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
@@ -73,7 +73,8 @@ public class AuthController {
         otpStore.save(email, otp);
         emailService.sendOtpEmail(email, otp);
 
-        return ResponseEntity.ok(Map.of("message", "Mã OTP đã được gửi về email " + email + ". Có hiệu lực trong 5 phút."));
+        return ResponseEntity
+                .ok(Map.of("message", "Mã OTP đã được gửi về email " + email + ". Có hiệu lực trong 5 phút."));
     }
 
     @PostMapping("/register")
@@ -105,13 +106,13 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        
+
         if ("admin".equalsIgnoreCase(request.getUsername())) {
             user.setRole("ROLE_ADMIN");
         } else {
             user.setRole("ROLE_USER");
         }
-        
+
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Tạo tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ."));
@@ -122,9 +123,7 @@ public class AuthController {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
-                        request.getPassword()
-                )
-        );
+                        request.getPassword()));
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails);
         return new AuthResponse(jwt);

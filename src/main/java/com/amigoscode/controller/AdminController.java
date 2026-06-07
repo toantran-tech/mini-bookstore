@@ -43,22 +43,19 @@ public class AdminController {
         }
 
         List<Map<String, Object>> revenueByMonth = new ArrayList<>();
-        java.util.Map<String, Double> revenueMap = new java.util.TreeMap<>();
-        List<com.amigoscode.Entity.Order> deliveredOrders = orderRepository.findByStatus("Delivered");
-        java.time.LocalDateTime oneYearAgo = java.time.LocalDateTime.now().minusMonths(12);
+        List<Object[]> monthRows = orderRepository.findMonthlyRevenue();
 
-        for (com.amigoscode.Entity.Order o : deliveredOrders) {
-            if (o.getOrderDate() != null && o.getOrderDate().isAfter(oneYearAgo)) {
-                String monthKey = String.format("%d-%02d", o.getOrderDate().getYear(), o.getOrderDate().getMonthValue());
-                revenueMap.put(monthKey, revenueMap.getOrDefault(monthKey, 0.0) + o.getTotalAmount());
-            }
-        }
+        for (Object[] row : monthRows) {
+            Map<String, Object> entry = new HashMap<>();
+            int year = ((Number) row[0]).intValue();
+            int month = ((Number) row[1]).intValue();
+            double revenue = ((Number) row[2]).doubleValue();
 
-        for (Map.Entry<String, Double> entry : revenueMap.entrySet()) {
-            Map<String, Object> row = new HashMap<>();
-            row.put("month", entry.getKey());
-            row.put("revenue", entry.getValue());
-            revenueByMonth.add(row);
+            String monthKey = String.format("%d-%02d", year, month);
+
+            entry.put("month", monthKey);
+            entry.put("revenue", revenue);
+            revenueByMonth.add(entry);
         }
 
         List<Map<String, Object>> topBooks = new ArrayList<>();
