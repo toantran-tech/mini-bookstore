@@ -41,3 +41,14 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Agent & Debug Files ###
+.agents/
+skills-lock.json
+PLAN.md
+debug*.js
+debug_*.html
+debug_*.png
+frontend/debug*.js
+frontend/debug_*.html
+frontend/debug_*.png
