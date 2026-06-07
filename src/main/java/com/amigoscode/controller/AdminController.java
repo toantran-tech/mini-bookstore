@@ -43,12 +43,22 @@ public class AdminController {
         }
 
         List<Map<String, Object>> revenueByMonth = new ArrayList<>();
-        List<Object[]> monthRows = orderRepository.getRevenueByMonth();
-        for (Object[] row : monthRows) {
-            Map<String, Object> entry = new HashMap<>();
-            entry.put("month", row[0].toString());
-            entry.put("revenue", ((Number) row[1]).doubleValue());
-            revenueByMonth.add(entry);
+        java.util.Map<String, Double> revenueMap = new java.util.TreeMap<>();
+        List<com.amigoscode.Entity.Order> deliveredOrders = orderRepository.findByStatus("Delivered");
+        java.time.LocalDateTime oneYearAgo = java.time.LocalDateTime.now().minusMonths(12);
+
+        for (com.amigoscode.Entity.Order o : deliveredOrders) {
+            if (o.getOrderDate() != null && o.getOrderDate().isAfter(oneYearAgo)) {
+                String monthKey = String.format("%d-%02d", o.getOrderDate().getYear(), o.getOrderDate().getMonthValue());
+                revenueMap.put(monthKey, revenueMap.getOrDefault(monthKey, 0.0) + o.getTotalAmount());
+            }
+        }
+
+        for (Map.Entry<String, Double> entry : revenueMap.entrySet()) {
+            Map<String, Object> row = new HashMap<>();
+            row.put("month", entry.getKey());
+            row.put("revenue", entry.getValue());
+            revenueByMonth.add(row);
         }
 
         List<Map<String, Object>> topBooks = new ArrayList<>();
