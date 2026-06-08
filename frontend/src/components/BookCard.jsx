@@ -33,6 +33,10 @@ export default function BookCard({ book }) {
                             alt={book.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/400x600/eef2ff/4f46e5?text=L%E1%BB%97i+%E1%BA%A2nh';
+                            }}
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-indigo-50 to-purple-50">

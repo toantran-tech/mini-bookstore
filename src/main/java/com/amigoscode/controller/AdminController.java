@@ -76,8 +76,7 @@ public class AdminController {
                 totalUsers,
                 ordersByStatus,
                 revenueByMonth,
-                topBooks
-        );
+                topBooks);
 
         return ResponseEntity.ok(stats);
     }

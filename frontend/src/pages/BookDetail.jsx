@@ -113,7 +113,12 @@ export default function BookDetail() {
                                     >
                                         {images.map((url, i) => (
                                             <SwiperSlide key={i}>
-                                                <img src={url} alt={`${book.title} ${i + 1}`} className="w-full h-full object-cover" />
+                                                <img src={url} alt={`${book.title} ${i + 1}`} className="w-full h-full object-cover" 
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = 'https://placehold.co/400x600/eef2ff/4f46e5?text=L%E1%BB%97i+%E1%BA%A2nh';
+                                                    }}
+                                                />
                                             </SwiperSlide>
                                         ))}
                                     </Swiper>
@@ -123,7 +128,12 @@ export default function BookDetail() {
                                         {images.map((url, i) => (
                                             <SwiperSlide key={i}>
                                                 <img src={url} alt={`thumb-${i}`}
-                                                    className="w-full aspect-square object-cover rounded-xl cursor-pointer border-2 border-transparent hover:border-indigo-500 transition" />
+                                                    className="w-full aspect-square object-cover rounded-xl cursor-pointer border-2 border-transparent hover:border-indigo-500 transition"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = 'https://placehold.co/400x600/eef2ff/4f46e5?text=L%E1%BB%97i+%E1%BA%A2nh';
+                                                    }}
+                                                />
                                             </SwiperSlide>
                                         ))}
                                     </Swiper>
@@ -131,7 +141,12 @@ export default function BookDetail() {
                             ) : (
                                 <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white aspect-[3/4] flex items-center justify-center shadow-sm">
                                     {images?.[0]
-                                        ? <img src={images[0]} alt={book.title} className="w-full h-full object-cover" />
+                                        ? <img src={images[0]} alt={book.title} className="w-full h-full object-cover" 
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = 'https://placehold.co/400x600/eef2ff/4f46e5?text=L%E1%BB%97i+%E1%BA%A2nh';
+                                            }}
+                                          />
                                         : <span className="text-9xl">📖</span>
                                     }
                                 </div>

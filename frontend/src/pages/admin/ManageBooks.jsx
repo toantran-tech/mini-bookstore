@@ -102,6 +102,14 @@ export default function ManageBooks() {
                             <tbody className="divide-y divide-gray-100">
                                 {books.map(book => (
                                     <tr key={book.id} className="hover:bg-indigo-50/50 transition">
+                                        <td className="px-6 py-4">
+                                            <img src={book.imageUrl} alt={book.title} className="w-12 h-16 object-cover rounded" 
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = 'https://placehold.co/400x600/eef2ff/4f46e5?text=L%E1%BB%97i+%E1%BA%A2nh';
+                                                }}
+                                            />
+                                        </td>
                                         <td className="px-6 py-4 text-gray-900 font-bold max-w-xs truncate">{book.title}</td>
                                         <td className="px-6 py-4 text-gray-500 font-medium">{book.author}</td>
                                         <td className="px-6 py-4 text-gray-500 text-xs">{book.isbn || '-'}</td>
