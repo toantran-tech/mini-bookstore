@@ -63,7 +63,7 @@ export default function ManageOrders() {
             const q = search.toLowerCase();
             return (
                 String(o.id).includes(q) ||
-                (o.user?.username || '').toLowerCase().includes(q) ||
+                (o.username || '').toLowerCase().includes(q) ||
                 (o.shippingAddress || '').toLowerCase().includes(q)
             );
         }
@@ -169,7 +169,7 @@ export default function ManageOrders() {
                                             {expandedId === order.id ? '▼' : '▶'}
                                         </td>
                                         <td className="px-6 py-4 font-bold text-gray-500">#{order.id}</td>
-                                        <td className="px-6 py-4 font-bold text-gray-900">{order.user?.username || '—'}</td>
+                                        <td className="px-6 py-4 font-bold text-gray-900">{order.username || '—'}</td>
                                         <td className="px-6 py-4 text-gray-500">
                                             {order.orderDate
                                                 ? new Date(order.orderDate).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -233,11 +233,10 @@ export default function ManageOrders() {
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {(order.orderDetails || []).map((d, i) => (
+                                                            {(order.items || []).map((d, i) => (
                                                                 <tr key={i} className="border-t border-gray-50 hover:bg-gray-50/50">
                                                                     <td className="px-4 py-2.5 font-medium text-gray-900">
-                                                                        {d.book?.title || `Sản phẩm #${i + 1}`}
-                                                                        {d.book?.author && <span className="text-gray-400 text-xs ml-2">/ {d.book.author}</span>}
+                                                                        {d.bookTitle || `Sản phẩm #${i + 1}`}
                                                                     </td>
                                                                     <td className="px-4 py-2.5 text-right text-gray-600">{(d.price || 0).toLocaleString('vi-VN')}đ</td>
                                                                     <td className="px-4 py-2.5 text-right text-gray-700 font-semibold">×{d.quantity}</td>

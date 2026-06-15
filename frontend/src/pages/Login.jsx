@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,7 +9,9 @@ export default function Login() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth(); // ← Lấy hàm login từ Context
+    const { login } = useAuth();
+    const [searchParams] = useSearchParams();
+    const isExpired = searchParams.get('expired') === '1';
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -32,6 +34,12 @@ export default function Login() {
             <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700">
                 <h2 className="text-3xl font-bold text-center text-white mb-2">🔑 Đăng Nhập</h2>
                 <p className="text-slate-400 text-center mb-8 text-sm">Chào mừng trở lại!</p>
+
+                {isExpired && (
+                    <div className="bg-amber-500/10 text-amber-400 border border-amber-500/30 p-3 rounded-lg mb-4 text-sm text-center">
+                        ⏰ Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!
+                    </div>
+                )}
 
                 {error && (
                     <div className="bg-red-500/10 text-red-400 border border-red-500/30 p-3 rounded-lg mb-4 text-sm text-center">
