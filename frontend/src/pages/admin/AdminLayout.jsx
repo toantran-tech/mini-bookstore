@@ -8,6 +8,8 @@ export default function AdminLayout() {
         { path: '/admin/books', label: '📚 Quản lý Sách' },
         { path: '/admin/orders', label: '📋 Quản lý Đơn hàng' },
         { path: '/admin/coupons', label: '🎁 Mã Giảm Giá' },
+        { path: '/admin/categories', label: '🏷️ Danh Mục' },
+        { path: '/admin/users', label: '👥 Người Dùng' },
     ];
 
     return (

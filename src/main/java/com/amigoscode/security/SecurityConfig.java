@@ -41,11 +41,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Tắt CSRF (vì mình xài Token, không
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll() // Vùng Đỏ: Cho phép tất cả vào Đăng nhập/Đăng ký
-                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll() // Cho phép khách vãng lai xem
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll() // Ai cũng có thể xem review
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll() // Cho
-                        .anyRequest().authenticated() // Vùng Xanh: Tất cả các API còn lại (như đặt hàng) BẮT BUỘC phải
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Không lưu trạng thái đăng nhập trên

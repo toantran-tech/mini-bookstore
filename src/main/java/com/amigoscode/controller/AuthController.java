@@ -78,20 +78,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        if (request.getUsername() == null || request.getUsername().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Tên đăng nhập không được để trống!"));
-        }
-        if (request.getPassword() == null || request.getPassword().length() < 6) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Mật khẩu phải có ít nhất 6 ký tự!"));
-        }
-        if (request.getEmail() == null || request.getEmail().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email không được để trống!"));
-        }
-        if (request.getOtp() == null || request.getOtp().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Vui lòng nhập mã OTP!"));
-        }
-
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("message", "Tên đăng nhập đã tồn tại!"));
