@@ -5,6 +5,7 @@ import com.amigoscode.Entity.Coupon;
 import com.amigoscode.Entity.Order;
 import com.amigoscode.Entity.OrderDetail;
 import com.amigoscode.Entity.User;
+import com.amigoscode.dto.AdminOrderResponse;
 import com.amigoscode.dto.OrderHistoryResponse;
 import com.amigoscode.dto.OrderItemResponse;
 import com.amigoscode.dto.OrderItemRequest;
@@ -153,8 +154,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllOrdersForAdmin() {
-        return orderRepository.findAll();
+    public List<AdminOrderResponse> getAllOrdersForAdmin() {
+        return orderRepository.findAll().stream().map(order -> {
+            AdminOrderResponse dto = new AdminOrderResponse();
+            dto.setId(order.getId());
+            dto.setOrderDate(order.getOrderDate());
+            dto.setStatus(order.getStatus());
+            dto.setUsername(order.getUser() != null ? order.getUser().getUsername() : "N/A");
+            dto.setEmail(order.getUser() != null ? order.getUser().getEmail() : "N/A");
+            dto.setShippingAddress(order.getShippingAddress());
+            dto.setShippingMethod(order.getShippingMethod());
+            dto.setCouponCode(order.getCouponCode());
+            dto.setSubtotal(order.getSubtotal());
+            dto.setDiscountAmount(order.getDiscountAmount());
+            dto.setShippingFee(order.getShippingFee());
+            dto.setTotalAmount(order.getTotalAmount());
+            if (order.getOrderDetails() != null) {
+                dto.setItems(order.getOrderDetails().stream()
+                        .map(d -> new OrderItemResponse(
+                                d.getBook() != null ? d.getBook().getTitle() : "N/A",
+                                d.getQuantity(),
+                                d.getPrice()))
+                        .toList());
+            }
+            return dto;
+        }).toList();
     }
 
     @Override

@@ -17,7 +17,11 @@ export const WishlistProvider = ({ children }) => {
             const res = await api.get('/wishlist');
             setWishlist(res.data);
         } catch (error) {
-            console.error('Error fetching wishlist:', error);
+            // 401/403 = chưa đăng nhập hoặc token hết hạn → không cần log
+            if (error.response?.status !== 401 && error.response?.status !== 403) {
+                console.error('Error fetching wishlist:', error);
+            }
+            setWishlist([]);
         }
     };
 

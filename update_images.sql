@@ -1,0 +1,17 @@
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=600&fit=crop&q=80' WHERE id = 1;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1547954575-855750c57bd3?w=400&h=600&fit=crop&q=80' WHERE id = 2;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=600&fit=crop&q=80' WHERE id = 3;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop&q=80' WHERE id = 4;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&q=80' WHERE id = 5;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1529148482759-b35b25c5f217?w=400&h=600&fit=crop&q=80' WHERE id = 6;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop&q=80' WHERE id = 7;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=400&h=600&fit=crop&q=80' WHERE id = 8;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=600&fit=crop&q=80' WHERE id = 9;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=600&fit=crop&q=80' WHERE id = 10;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=600&fit=crop&q=80' WHERE id = 11;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=600&fit=crop&q=80' WHERE id = 12;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=400&h=600&fit=crop&q=80' WHERE id = 13;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1455885661740-29cbf08a42fa?w=400&h=600&fit=crop&q=80' WHERE id = 14;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=400&h=600&fit=crop&q=80' WHERE id = 15;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&h=600&fit=crop&q=80' WHERE id = 16;
+UPDATE book SET image_url = 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=600&fit=crop&q=80' WHERE id = 17;
