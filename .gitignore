@@ -52,3 +52,8 @@ debug_*.png
 frontend/debug*.js
 frontend/debug_*.html
 frontend/debug_*.png
+
+# Local secrets
+.env
+.env.*
+!.env.example

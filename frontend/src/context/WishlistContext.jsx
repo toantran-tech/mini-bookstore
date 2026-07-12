@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -8,7 +8,7 @@ export const WishlistProvider = ({ children }) => {
     const [wishlist, setWishlist] = useState([]);
     const { token } = useAuth();
 
-    const fetchWishlist = async () => {
+    const fetchWishlist = useCallback(async () => {
         if (!token) {
             setWishlist([]);
             return;
@@ -23,11 +23,11 @@ export const WishlistProvider = ({ children }) => {
             }
             setWishlist([]);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchWishlist();
-    }, [token]);
+    }, [fetchWishlist]);
 
     const toggleWishlist = async (book) => {
         if (!token) {

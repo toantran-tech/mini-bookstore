@@ -1,13 +1,9 @@
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { useState } from 'react';
 
 export default function Cart() {
     const { items, removeItem, updateQuantity, clearCart, totalPrice, totalItems, loading } = useCart();
     const navigate = useNavigate();
-    const [ordering, setOrdering] = useState(false);
-    const [message, setMessage] = useState('');
 
     const handlePlaceOrder = () => {
         if (items.length === 0) return;
@@ -145,28 +141,11 @@ export default function Cart() {
                                 </div>
                             </div>
 
-                            {message === 'success' && (
-                                <div className="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm text-center font-medium">
-                                    ✅ Đặt hàng thành công! Đang chuyển hướng...
-                                </div>
-                            )}
-                            {message && message !== 'success' && (
-                                <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm text-center">
-                                    ❌ {message}
-                                </div>
-                            )}
-
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={ordering}
                                 className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-bold py-4 rounded-2xl transition-all shadow-md hover:shadow-indigo-200 hover:scale-[1.02] active:scale-[0.98] duration-200 text-base"
                             >
-                                {ordering ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                        Đang đặt...
-                                    </span>
-                                ) : '🛍️ Đặt Hàng Ngay'}
+                                🛍️ Đặt Hàng Ngay
                             </button>
 
                             <button

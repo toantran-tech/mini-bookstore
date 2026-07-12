@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useNotifications } from '../hooks/useNotifications';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
@@ -10,7 +12,15 @@ export default function Navbar() {
     const navigate = useNavigate();
     const cartCount = items?.length || 0;
 
+    const { notifications, unreadCount, markAllRead } = useNotifications(user?.username);
+    const [showNotif, setShowNotif] = useState(false);
+
     const handleLogout = () => { logout(); navigate('/login'); };
+
+    const handleBellClick = () => {
+        setShowNotif(prev => !prev);
+        if (!showNotif) markAllRead(); // Đánh dấu đã đọc khi mở
+    };
 
     return (
         <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
@@ -70,6 +80,59 @@ export default function Navbar() {
                     </div>
 
                     <div className="flex items-center gap-3">
+                        {/* Notification Bell — chỉ hiển thị khi đã đăng nhập */}
+                        {user && (
+                            <div className="relative">
+                                <button
+                                    onClick={handleBellClick}
+                                    className="relative p-2 rounded-full text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+                                    title="Thông báo"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                    </svg>
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold px-1 ring-2 ring-white">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+
+                                {/* Dropdown notification */}
+                                {showNotif && (
+                                    <div className="absolute right-0 top-12 w-80 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                            <span className="font-bold text-sm text-gray-800">Thông báo</span>
+                                            {notifications.length > 0 && (
+                                                <button
+                                                    onClick={() => { setShowNotif(false); }}
+                                                    className="text-xs text-gray-400 hover:text-indigo-600 transition"
+                                                >
+                                                    Đóng
+                                                </button>
+                                            )}
+                                        </div>
+                                        {notifications.length === 0 ? (
+                                            <div className="py-8 text-center">
+                                                <p className="text-2xl mb-2">🔔</p>
+                                                <p className="text-gray-400 text-sm">Chưa có thông báo nào</p>
+                                            </div>
+                                        ) : (
+                                            <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
+                                                {notifications.slice(0, 10).map((n, i) => (
+                                                    <div key={i} className="px-4 py-3 hover:bg-gray-50 transition-colors">
+                                                        <p className="font-semibold text-sm text-gray-800">{n.title}</p>
+                                                        <p className="text-xs text-gray-500 mt-0.5">{n.message}</p>
+                                                        <p className="text-[10px] text-gray-400 mt-1">{n.time}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {user ? (
                             <>
                                 <Link to="/profile?tab=info" className="hidden sm:flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded-lg transition">

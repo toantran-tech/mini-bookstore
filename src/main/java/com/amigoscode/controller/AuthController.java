@@ -1,13 +1,16 @@
 package com.amigoscode.controller;
 
+import com.amigoscode.Entity.RefreshToken;
 import com.amigoscode.Entity.User;
 import com.amigoscode.dto.AuthRequest;
-import com.amigoscode.dto.AuthResponse;
+import com.amigoscode.dto.LoginResponse;
 import com.amigoscode.dto.RegisterRequest;
 import com.amigoscode.repository.UserRepository;
 import com.amigoscode.security.JwtUtil;
 import com.amigoscode.service.EmailService;
 import com.amigoscode.service.OtpStore;
+import com.amigoscode.service.RefreshTokenService;
+
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,6 +37,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final OtpStore otpStore;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthController(@Lazy AuthenticationManager authenticationManager,
             UserDetailsService userDetailsService,
@@ -40,7 +45,8 @@ public class AuthController {
             PasswordEncoder passwordEncoder,
             UserRepository userRepository,
             EmailService emailService,
-            OtpStore otpStore) {
+            OtpStore otpStore,
+            RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
@@ -48,6 +54,7 @@ public class AuthController {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.otpStore = otpStore;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/send-otp")
@@ -94,11 +101,8 @@ public class AuthController {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        if ("admin".equalsIgnoreCase(request.getUsername())) {
-            user.setRole("ROLE_ADMIN");
-        } else {
-            user.setRole("ROLE_USER");
-        }
+        // Public registration must never grant elevated privileges.
+        user.setRole("ROLE_USER");
 
         userRepository.save(user);
 
@@ -106,13 +110,51 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody AuthRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
                         request.getPassword()));
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails);
-        return new AuthResponse(jwt);
+        final String accessToken = jwtUtil.generateToken(userDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority())
+                .orElse("ROLE_USER");
+        return ResponseEntity.ok(new LoginResponse(
+                accessToken,
+                refreshToken.getToken(),
+                request.getUsername(),
+                role));
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
+        String token = body.get("refreshToken");
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Thiếu refreshToken"));
+        }
+
+        Optional<RefreshToken> refreshTokenOpt = refreshTokenService.validateRefreshToken(token);
+        if (refreshTokenOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Refresh token không hợp lệ hoặc đã hết hạn"));
+        }
+
+        String username = refreshTokenOpt.get().getUsername();
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        final String newAccessToken = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody Map<String, String> body) {
+        String refreshToken = body.get("refreshToken");
+        if (refreshToken != null) {
+            refreshTokenService.revokeToken(refreshToken);
+        }
+        return ResponseEntity.ok(Map.of("message", "Đăng xuất thành công"));
+    }
+
 }

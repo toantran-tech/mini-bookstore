@@ -7,7 +7,7 @@ export function CartProvider({ children }) {
     const [cart, setCart] = useState(null); // { cartId, items, totalPrice, totalItems }
     const [loading, setLoading] = useState(false);
 
-    const isLoggedIn = () => !!localStorage.getItem('token');
+    const isLoggedIn = () => !!localStorage.getItem('accessToken');
 
     const fetchCart = useCallback(async () => {
         if (!isLoggedIn()) { setCart(null); return; }

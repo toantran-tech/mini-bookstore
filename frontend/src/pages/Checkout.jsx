@@ -34,6 +34,7 @@ export default function Checkout() {
 
     const [address, setAddress] = useState({ name: '', phone: '', street: '', city: '' });
     const [shippingMethod, setShippingMethod] = useState('STANDARD');
+    const [paymentMethod, setPaymentMethod] = useState('COD'); // 'COD' | 'VNPAY'
     const [couponCode, setCouponCode] = useState('');
     const [couponResult, setCouponResult] = useState(null);
     const [couponLoading, setCouponLoading] = useState(false);
@@ -83,14 +84,24 @@ export default function Checkout() {
         setOrdering(true);
         try {
             const fullAddress = `${address.name} | ${address.phone} | ${address.street}, ${address.city}`;
-            await api.post('/orders', {
+            const orderData = {
                 items: items.map(i => ({ bookId: i.bookId, quantity: i.quantity })),
                 shippingAddress: fullAddress,
                 shippingMethod,
                 couponCode: couponResult?.valid ? couponCode.trim() : null,
-            });
-            await clearCart();
-            navigate('/order-success');
+            };
+
+            if (paymentMethod === 'VNPAY') {
+                // Luồng VNPay: tạo đơn pending → redirect sang cổng VNPay
+                const res = await api.post('/orders/checkout-vnpay', orderData);
+                // Keep the cart when payment is cancelled; clear it only after backend verification.
+                window.location.href = res.data.paymentUrl; // Rời khỏi app, sang VNPay
+            } else {
+                // Luồng COD: đặt hàng thường
+                await api.post('/orders', orderData);
+                await clearCart();
+                navigate('/order-success');
+            }
         } catch (err) {
             alert(err.response?.data?.message || 'Đặt hàng thất bại. Vui lòng thử lại!');
         } finally {
@@ -239,6 +250,42 @@ export default function Checkout() {
                             {couponResult && !couponResult.valid && (
                                 <p className="mt-2 text-red-500 text-sm flex items-center gap-1">
                                     <span>❌</span> {couponResult.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Bước 4: Phương thức thanh toán */}
+                        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                            <div className="flex items-center gap-3 mb-5">
+                                <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm">4</div>
+                                <h2 className="text-lg font-bold text-slate-800">Phương thức thanh toán</h2>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {[
+                                    { id: 'COD',   icon: '💵', label: 'Tiền mặt (COD)', desc: 'Trả khi nhận hàng' },
+                                    { id: 'VNPAY', icon: '🏦', label: 'VNPay',          desc: 'Thanh toán online an toàn' },
+                                ].map(pm => (
+                                    <button
+                                        key={pm.id}
+                                        type="button"
+                                        onClick={() => setPaymentMethod(pm.id)}
+                                        className={`p-4 border-2 rounded-xl flex items-center gap-3 transition-all text-left ${
+                                            paymentMethod === pm.id
+                                                ? 'border-indigo-500 bg-indigo-50'
+                                                : 'border-slate-200 hover:border-slate-300'
+                                        }`}
+                                    >
+                                        <span className="text-2xl">{pm.icon}</span>
+                                        <div>
+                                            <p className={`font-bold text-sm ${paymentMethod === pm.id ? 'text-indigo-700' : 'text-slate-700'}`}>{pm.label}</p>
+                                            <p className="text-xs text-slate-400">{pm.desc}</p>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                            {paymentMethod === 'VNPAY' && (
+                                <p className="mt-3 text-xs text-slate-400 flex items-center gap-1">
+                                    ℹ️ Bạn sẽ được chuyển sang cổng VNPay để hoàn tất thanh toán.
                                 </p>
                             )}
                         </div>

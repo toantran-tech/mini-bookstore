@@ -33,7 +33,7 @@ public class JwtUtil {
                 .claim("role", role)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 3600 * 1000 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -41,7 +41,6 @@ public class JwtUtil {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
-
 
     public boolean isTokenValid(String token, String usernameFromDb) {
         final String usernameFromToken = extractUsername(token);

@@ -1,93 +1,93 @@
-<br/>
 <div align="center">
-  <h1 align="center">📚 Mini Bookstore E-Commerce</h1>
-  <p align="center">
-    A full-stack modern E-Commerce web application built with <strong>Spring Boot 3</strong> & <strong>React (Vite)</strong>.
-    <br/>
-    Features robust JWT authentication, advanced search algorithms, cart management, and an interactive admin dashboard.
-  </p>
+  <h1>📚 Mini Bookstore E-Commerce</h1>
+  <p>A full-stack e-commerce application built with Spring Boot 3 and React (Vite).</p>
 </div>
 
-## ✨ Features
+## Features
 
-### 🛍️ Customer Experience
-- **Authentication:** Secure Login/Register with JWT. Registration includes **Email OTP Verification**.
-- **Product Browsing:** Infinite scroll and lazy-loaded images.
-- **Advanced Search:** Multi-criteria filtering by **ISBN, Author, Category, and Price Range**.
-- **Shopping Cart & Checkout:** Real-time total calculation with **Discount Coupons** support.
-- **Order Tracking:** Track order status and receive **Email Confirmations** after checkout.
-- **Reviews & Ratings:** Users can rate and review books they have successfully purchased.
-- **Wishlist:** Save favorite books for later.
+### Customer experience
 
-### 🛡️ Admin Dashboard (Role-based Access)
-- **Visual Analytics:** Interactive charts (using *Recharts*) for Monthly Revenue, Orders by Status, and Top-Selling Books.
-- **Inventory Management:** Full CRUD operations for Books, Categories, and Coupons.
-- **Order Processing:** Update order statuses (Pending -> Processing -> Shipped -> Delivered) with automated system updates.
+- JWT authentication with email OTP registration and refresh-token revocation.
+- Book browsing, infinite scroll, lazy-loaded images and multi-criteria search.
+- Cart, checkout, discount coupons and VNPay sandbox payments.
+- Order history with email confirmations and real-time status notifications.
+- Reviews, ratings and wishlist.
 
-### ⚡ Performance & Security
-- **Caching:** API routes like `/top-books` and `/categories` are aggressively cached via **Spring Cache (ConcurrentMapCache/Redis)** for `<10ms` response times.
-- **Security:** CSRF & CORS protected. Passwords hashed using `BCrypt`. JWT stored in HttpOnly cookies/Local storage. No recursive JSON serialization (Circular Reference handled via `@JsonIgnore`).
+### Admin dashboard
 
----
+- Revenue, order-status and top-selling-book charts.
+- Book, category, coupon and user management.
+- Role-protected order processing and inventory management.
 
-## 💻 Tech Stack
+### Performance and security
 
-**Frontend:**
-- React 19 (Vite)
-- Tailwind CSS 4
-- React Router v7
-- Recharts (Analytics)
-- Lucide React (Icons)
-- Axios (API Client)
+- Spring Cache is used for top-book and category queries with invalidation after updates.
+- Passwords are hashed with BCrypt and protected endpoints use Spring Security authorization.
+- HTTP and WebSocket origins are restricted through the `FRONTEND_URL` allowlist.
+- Access and refresh tokens are currently stored in browser local storage. CSRF is disabled because authentication uses the `Authorization` header; hardening token storage against XSS remains future work.
+- Auth endpoints are rate-limited per IP in each application instance.
 
-**Backend:**
-- Java 17 + Spring Boot 3.4
-- Spring Security + JWT (jjwt)
-- Spring Data JPA (Hibernate)
-- Spring Mail (Thymeleaf Templates)
-- Spring Cache
-- MySQL 9.x Database
+## Tech stack
 
----
+**Frontend:** React 19, Vite, Tailwind CSS 4, Redux Toolkit, React Router, Recharts, Axios, STOMP/WebSocket.
 
-## 🚀 Getting Started
+**Backend:** Java 17, Spring Boot 3.4, Spring Security, Spring Data JPA, MySQL, Spring Mail, Spring Cache, Bucket4j and Cloudinary.
+
+## Getting started
 
 ### Prerequisites
+
 - JDK 17+
-- Node.js 18+
-- MySQL Server 8+
+- Node.js 20+
+- MySQL 8+
 
-### 1. Database Setup
-Create a new MySQL database named `mini_bookstore`.
+### 1. Database
+
 ```sql
-CREATE DATABASE mini_bookstore;
+CREATE DATABASE minibookstore;
 ```
 
-### 2. Backend Setup
-Navigate to the root directory and update your `src/main/resources/application.properties`:
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/mini_bookstore
-spring.datasource.username=root
-spring.datasource.password=your_password
-spring.mail.username=your_email@gmail.com
-spring.mail.password=your_app_password
-```
-Run the Spring Boot application:
+### 2. Environment variables
+
+The repository intentionally contains no production credentials. Copy the variable names from `.env.example` into your IDE/run configuration or operating-system environment.
+
+Required backend variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD` | MySQL connection |
+| `JWT_SECRET` | JWT signing key; use a random secret of at least 32 bytes |
+| `FRONTEND_URL` | Comma-separated trusted origins, for example `http://localhost:5173` |
+| `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP credentials for OTP/order email |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Image storage |
+| `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_RETURN_URL`, `FRONTEND_PAYMENT_RETURN_URL` | VNPay sandbox callback and verified-result redirect |
+
+Never commit a populated `.env` file or real credentials.
+
+### 3. Backend
+
 ```bash
 mvn spring-boot:run
 ```
-*(Hibernate will automatically generate all tables via `ddl-auto=update`)*
 
-### 3. Frontend Setup
-Open a new terminal and navigate to the `frontend` folder:
+Swagger UI is available at `http://localhost:8080/swagger-ui/index.html`.
+
+### 4. Frontend
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Access the application at `http://localhost:5173`.
 
----
+Open `http://localhost:5173`.
 
-## 📄 License
-This project is open-source and available under the [MIT License](LICENSE).
+## Tests
+
+```bash
+mvn test
+cd frontend
+npm run build
+```
+
+The current database schema is created by Hibernate with `ddl-auto=update`; versioned migrations are planned before production use.

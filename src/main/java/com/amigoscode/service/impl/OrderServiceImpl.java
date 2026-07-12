@@ -189,4 +189,162 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(newStatus);
         orderRepository.save(order);
     }
+
+    // ─── VNPay methods ───────────────────────────────────────────
+
+    /**
+     * Tạo đơn hàng với status PENDING_PAYMENT cho VNPay.
+     * Chưa trừ stock, chờ VNPay callback confirm mới xử lý tiếp.
+     */
+    @Override
+    @Transactional
+    public Order placeOrderPending(String username, OrderRequest request, String paymentMethod) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+
+        Order order = new Order();
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus("Pending");
+        order.setPaymentMethod(paymentMethod);
+        order.setPaymentStatus("PENDING");
+
+        order.setShippingAddress(request.getShippingAddress());
+        order.setShippingMethod(request.getShippingMethod());
+        order.setShippingFee(calcShippingFee(request.getShippingMethod()));
+
+        double subtotal = 0.0;
+        List<OrderDetail> orderDetails = new ArrayList<>();
+
+        for (OrderItemRequest itemRequest : request.getItems()) {
+            Book book = bookRepository.findById(itemRequest.getBookId())
+                    .orElseThrow(() -> new IllegalArgumentException("Book not found: " + itemRequest.getBookId()));
+            if (book.getStock() < itemRequest.getQuantity()) {
+                throw new IllegalArgumentException("Không đủ hàng: " + book.getTitle());
+            }
+            subtotal += book.getPrice() * itemRequest.getQuantity();
+
+            OrderDetail detail = new OrderDetail();
+            detail.setOrder(order);
+            detail.setBook(book);
+            detail.setQuantity(itemRequest.getQuantity());
+            detail.setPrice(book.getPrice());
+            orderDetails.add(detail);
+        }
+
+        // Xử lý coupon
+        double discountAmount = 0;
+        if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
+            var coupon = couponRepository.findByCode(request.getCouponCode().trim().toUpperCase()).orElse(null);
+            if (coupon != null && coupon.isActive() && subtotal >= coupon.getMinOrderValue()) {
+                if ("PERCENT".equalsIgnoreCase(coupon.getDiscountType())) {
+                    discountAmount = subtotal * coupon.getDiscountValue() / 100.0;
+                    if (coupon.getMaxDiscount() > 0) discountAmount = Math.min(discountAmount, coupon.getMaxDiscount());
+                } else {
+                    discountAmount = coupon.getDiscountValue();
+                }
+                discountAmount = Math.min(discountAmount, subtotal);
+                order.setCouponCode(coupon.getCode());
+            }
+        }
+
+        order.setSubtotal(subtotal);
+        order.setDiscountAmount(discountAmount);
+        order.setTotalAmount(subtotal + order.getShippingFee() - discountAmount);
+        order.setOrderDetails(orderDetails);
+
+        Order savedOrder = orderRepository.save(order);
+        savedOrder.setVnpayTxnRef(savedOrder.getId() + "_" + System.currentTimeMillis());
+        return orderRepository.save(savedOrder);
+    }
+
+    /** VNPay callback thành công: xác thực dữ liệu và cập nhật đúng một lần. */
+    @Override
+    @Transactional
+    public boolean confirmPayment(Long orderId, String txnRef, long paidAmount) {
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+
+        validatePaymentIdentity(order, txnRef);
+
+        if ("PAID".equals(order.getPaymentStatus())) {
+            return false;
+        }
+        if (!"PENDING".equals(order.getPaymentStatus())) {
+            throw new IllegalArgumentException("Order is not awaiting payment");
+        }
+
+        long expectedAmount = Math.round(order.getTotalAmount() * 100);
+        if (paidAmount != expectedAmount) {
+            throw new IllegalArgumentException("Payment amount does not match order total");
+        }
+
+        List<Book> lockedBooks = new ArrayList<>();
+        if (order.getOrderDetails() != null) {
+            for (OrderDetail detail : order.getOrderDetails()) {
+                Book book = bookRepository.findByIdForUpdate(detail.getBook().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Book not found: " + detail.getBook().getId()));
+                if (book.getStock() < detail.getQuantity()) {
+                    throw new IllegalArgumentException("Không đủ hàng: " + book.getTitle());
+                }
+                lockedBooks.add(book);
+            }
+
+            for (int i = 0; i < order.getOrderDetails().size(); i++) {
+                OrderDetail detail = order.getOrderDetails().get(i);
+                Book book = lockedBooks.get(i);
+                book.setStock(book.getStock() - detail.getQuantity());
+                book.setSoldCount((book.getSoldCount() == null ? 0 : book.getSoldCount()) + detail.getQuantity());
+                bookRepository.save(book);
+            }
+        }
+
+        if (order.getCouponCode() != null) {
+            couponRepository.findByCodeForUpdate(order.getCouponCode()).ifPresent(coupon -> {
+                coupon.setUsedCount(coupon.getUsedCount() + 1);
+                couponRepository.save(coupon);
+            });
+        }
+
+        order.setPaymentStatus("PAID");
+        order.setStatus("Processing");
+        orderRepository.save(order);
+        emailService.sendOrderConfirmationEmail(order.getUser(), order);
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public void failPayment(Long orderId, String txnRef) {
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+
+        validatePaymentIdentity(order, txnRef);
+        if ("PAID".equals(order.getPaymentStatus()) || "FAILED".equals(order.getPaymentStatus())) {
+            return;
+        }
+        if (!"PENDING".equals(order.getPaymentStatus())) {
+            throw new IllegalArgumentException("Order is not awaiting payment");
+        }
+
+        order.setPaymentStatus("FAILED");
+        order.setStatus("Cancelled");
+        orderRepository.save(order);
+    }
+
+    private void validatePaymentIdentity(Order order, String txnRef) {
+        if (!"VNPAY".equals(order.getPaymentMethod())) {
+            throw new IllegalArgumentException("Order is not a VNPay order");
+        }
+        if (txnRef == null || !txnRef.equals(order.getVnpayTxnRef())) {
+            throw new IllegalArgumentException("Payment reference does not match order");
+        }
+    }
+    /** Lấy username của chủ đơn (dùng cho notification) */
+    @Override
+    public String getOrderOwnerUsername(Long orderId) {
+        return orderRepository.findById(orderId)
+                .map(o -> o.getUser() != null ? o.getUser().getUsername() : null)
+                .orElse(null);
+    }
 }

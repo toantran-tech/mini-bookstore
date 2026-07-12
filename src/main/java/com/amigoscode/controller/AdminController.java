@@ -1,20 +1,29 @@
 package com.amigoscode.controller;
 
-import com.amigoscode.dto.AdminStatsResponse;
-import com.amigoscode.repository.BookRepository;
-import com.amigoscode.repository.OrderRepository;
-import com.amigoscode.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.amigoscode.Entity.Book;
+import com.amigoscode.dto.AdminStatsResponse;
+import com.amigoscode.repository.BookRepository;
+import com.amigoscode.repository.OrderRepository;
+import com.amigoscode.repository.UserRepository;
+import com.amigoscode.service.CloudinaryService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -25,6 +34,7 @@ public class AdminController {
     private final OrderRepository orderRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService;
 
     @GetMapping("/stats")
     public ResponseEntity<AdminStatsResponse> getStats() {
@@ -80,4 +90,25 @@ public class AdminController {
 
         return ResponseEntity.ok(stats);
     }
+
+    @PostMapping("/books/{id}/upload-image")
+    public ResponseEntity<?> uploadBookImage(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Book book = bookRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Book not found"));
+
+            String imageUrl = cloudinaryService.uploadImage(file);
+            book.setImageUrl(imageUrl);
+            bookRepository.save(book);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Upload ảnh thành công!",
+                    "imageUrl", imageUrl));
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Lỗi upload: " + e.getMessage()));
+        }
+    }
+
 }

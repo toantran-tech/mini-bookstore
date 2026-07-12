@@ -38,7 +38,7 @@ export default function BookDetail() {
             .then(res => setSimilarBooks(res.data))
             .catch(() => navigate('/'))
             .finally(() => setLoading(false));
-    }, [id]);
+    }, [id, navigate]);
 
     const getImages = (book) => {
         const urls = [];

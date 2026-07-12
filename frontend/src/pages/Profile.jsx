@@ -17,18 +17,10 @@ export default function Profile() {
     const navigate = useNavigate();
 
     const queryParams = new URLSearchParams(location.search);
-    const initialTab = queryParams.get('tab') || 'info';
-
-    const [activeTab, setActiveTab] = useState(initialTab);
+    const activeTab = queryParams.get('tab') || 'info';
     const [showMap, setShowMap] = useState(false);
 
-    useEffect(() => {
-        const tab = queryParams.get('tab') || 'info';
-        if (tab !== activeTab) setActiveTab(tab);
-    }, [location.search]);
-
     const handleTabChange = (tab) => {
-        setActiveTab(tab);
         navigate(`/profile?tab=${tab}`);
     };
 
@@ -106,7 +98,7 @@ export default function Profile() {
                 avatarUrl: profile.avatarUrl
             });
             alert('Cập nhật thông tin thành công!');
-        } catch (err) {
+        } catch {
             alert('Lỗi cập nhật thông tin!');
         } finally {
             setSavingProfile(false);

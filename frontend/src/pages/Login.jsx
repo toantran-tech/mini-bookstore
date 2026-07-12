@@ -20,7 +20,7 @@ export default function Login() {
 
         try {
             const response = await api.post('/auth/login', { username, password });
-            login(response.data.token); // ← Gọi hàm login của Context (tự lưu localStorage)
+            login(response.data.accessToken, response.data.refreshToken);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Sai tài khoản hoặc mật khẩu!');

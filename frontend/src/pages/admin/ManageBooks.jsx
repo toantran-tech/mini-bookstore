@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
+import ImageUpload from '../../components/ImageUpload';
 
 const EMPTY_FORM = { title: '', author: '', isbn: '', price: '', stock: '', categoryName: '', imageUrl: '', description: '' };
 
@@ -7,9 +8,9 @@ export default function ManageBooks() {
     const [books, setBooks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-    const [editingBook, setEditingBook] = useState(null); // null = thêm mới, object = sửa
-    const [form, setForm] = useState(EMPTY_FORM);
+    const [editingBook, setEditingBook] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [form, setForm] = useState(EMPTY_FORM);
 
     useEffect(() => { fetchBooks(); }, []);
 
@@ -103,7 +104,7 @@ export default function ManageBooks() {
                                 {books.map(book => (
                                     <tr key={book.id} className="hover:bg-indigo-50/50 transition">
                                         <td className="px-6 py-4">
-                                            <img src={book.imageUrl} alt={book.title} className="w-12 h-16 object-cover rounded" 
+                                            <img src={book.imageUrl} alt={book.title} className="w-12 h-16 object-cover rounded"
                                                 onError={(e) => {
                                                     e.target.onerror = null;
                                                     e.target.src = 'https://placehold.co/400x600/eef2ff/4f46e5?text=L%E1%BB%97i+%E1%BA%A2nh';
@@ -203,14 +204,34 @@ export default function ManageBooks() {
                                     />
                                 </div>
                                 <div className="col-span-2">
-                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">URL Ảnh bìa</label>
-                                    <input
-                                        type="text"
-                                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                                        value={form.imageUrl}
-                                        onChange={e => setForm({ ...form, imageUrl: e.target.value })}
-                                        placeholder="https://..."
-                                    />
+                                    <label className="block text-gray-700 text-sm font-bold mb-1.5">Ảnh bìa</label>
+                                    {editingBook ? (
+                                        /* Khi SỬA: dùng Cloudinary upload thật */
+                                        <div className="space-y-2">
+                                            <ImageUpload
+                                                bookId={editingBook.id}
+                                                currentImageUrl={form.imageUrl}
+                                                onUploaded={(url) => setForm(prev => ({ ...prev, imageUrl: url }))}
+                                            />
+                                            {form.imageUrl && (
+                                                <p className="text-xs text-gray-400 truncate">
+                                                    🔗 {form.imageUrl}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        /* Khi THÊM MỚI: nhập URL tay (chưa có bookId để upload) */
+                                        <div className="space-y-1">
+                                            <input
+                                                type="text"
+                                                className="w-full bg-gray-50 border border-gray-200 text-gray-900 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                                                value={form.imageUrl}
+                                                onChange={e => setForm({ ...form, imageUrl: e.target.value })}
+                                                placeholder="https://example.com/book-cover.jpg"
+                                            />
+                                            <p className="text-xs text-gray-400">💡 Sau khi tạo xong, nhấn <strong>Sửa</strong> để upload ảnh lên Cloudinary</p>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="col-span-2">
                                     <label className="block text-gray-700 text-sm font-bold mb-1.5">Mô tả chi tiết</label>

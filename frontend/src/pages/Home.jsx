@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 import BookCard from '../components/BookCard';
 import { useAuth } from '../context/AuthContext';
 import {
     BookOpen, Search, Zap, Truck, Gift, FolderOpen, Flame, Sparkles,
-    SlidersHorizontal, Library, Trophy, Inbox, CheckCircle2, PartyPopper,
+    SlidersHorizontal, Library, Trophy, CheckCircle2, PartyPopper,
     Code, Briefcase, BrainCircuit, BookType, Microscope, SearchX
 } from 'lucide-react';
 
@@ -42,14 +42,13 @@ const SectionHeader = ({ icon: Icon, title, subtitle, badge, badgeColor = 'bg-ro
 function BookRow({ title, icon, badge, badgeColor, sortBy, size = 4, viewAllLink }) {
     const [books, setBooks] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
 
     useEffect(() => {
         api.get('/books/all', { params: { sortBy, size, page: 0 } })
             .then(res => setBooks(res.data.content || []))
             .catch(() => { })
             .finally(() => setLoading(false));
-    }, []);
+    }, [sortBy, size]);
 
     return (
         <section className="mb-12">
@@ -89,7 +88,6 @@ const SORT_OPTIONS = [
 
 export default function Home() {
     const { user } = useAuth();
-    const navigate = useNavigate();
 
     const [search, setSearch] = useState('');
     const [authorSearch, setAuthorSearch] = useState('');
@@ -128,7 +126,7 @@ export default function Home() {
             setInitialLoading(true);
             isFetchingRef.current = false;
         }
-    }, [search, authorSearch, isbnSearch, selectedCategory, sortBy]);
+    }, [isFiltering, search, authorSearch, isbnSearch, selectedCategory, sortBy, minPrice, maxPrice]);
 
     const fetchPage = useCallback(async (pageNum) => {
         if (isFetchingRef.current) return;

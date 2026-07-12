@@ -57,7 +57,7 @@ function LocationMarker({ position, setPosition, setAddressDetails }) {
     return position === null ? null : <Marker position={position} />;
 }
 
-export default function MapPicker({ onConfirm, onClose, initialAddress }) {
+export default function MapPicker({ onConfirm, onClose }) {
     const defaultCenter = { lat: 10.762622, lng: 106.660172 };
     
     const [position, setPosition] = useState(null);

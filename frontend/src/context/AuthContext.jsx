@@ -1,42 +1,44 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+    loginSuccess,
+    logoutSuccess,
+    selectUser,
+    selectIsAdmin,
+    selectIsLoggedIn,
+    selectAccessToken,
+} from '../redux/slices/authSlice';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-    const [token, setToken] = useState(() => localStorage.getItem('token'));
-    const [user, setUser] = useState(null); // { username, role }
+    const dispatch = useDispatch();
 
-    useEffect(() => {
-        if (token) {
+    // Lấy state từ Redux store
+    const user      = useSelector(selectUser);
+    const isAdmin   = useSelector(selectIsAdmin);
+    const isLoggedIn = useSelector(selectIsLoggedIn);
+    const token     = useSelector(selectAccessToken);  // backward-compat
+
+    // Gọi sau khi đăng nhập thành công
+    const login = (accessToken, refreshToken) => {
+        dispatch(loginSuccess({ accessToken, refreshToken }));
+    };
+
+    // Đăng xuất: revoke refreshToken ở backend rồi xóa state
+    const logout = async () => {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
             try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                setUser({
-                    username: payload.sub, // Spring Boot mặc định đặt username vào "sub"
-                    role: payload.role ?? payload.roles ?? null,
-                });
-            } catch {
-                logout();
-            }
-        } else {
-            setUser(null);
+                await api.post('/auth/logout', { refreshToken });
+            } catch { /* ignore lỗi network khi logout */ }
         }
-    }, [token]);
-
-    const login = (newToken) => {
-        localStorage.setItem('token', newToken);
-        setToken(newToken);
+        dispatch(logoutSuccess());
     };
-
-    const logout = () => {
-        localStorage.removeItem('token');
-        setToken(null);
-        setUser(null);
-    };
-
-    const isAdmin = user?.role === 'ROLE_ADMIN';
 
     return (
-        <AuthContext.Provider value={{ token, user, login, logout, isAdmin }}>
+        <AuthContext.Provider value={{ token, user, login, logout, isAdmin, isLoggedIn }}>
             {children}
         </AuthContext.Provider>
     );

@@ -226,4 +226,110 @@ class OrderServiceImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Order not found");
     }
+
+    // ─── VNPay callback hardening ─────────────────────────────────────────────
+
+    @Test
+    @DisplayName("confirmPayment: cập nhật tồn kho đúng một lần khi callback hợp lệ")
+    void confirmPayment_shouldProcessValidCallbackOnce() {
+        order.setPaymentMethod("VNPAY");
+        order.setPaymentStatus("PENDING");
+        order.setVnpayTxnRef("1_123456");
+
+        when(orderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book));
+
+        boolean processed = orderService.confirmPayment(1L, "1_123456", 10_000_000L);
+
+        assertThat(processed).isTrue();
+        assertThat(order.getPaymentStatus()).isEqualTo("PAID");
+        assertThat(order.getStatus()).isEqualTo("Processing");
+        assertThat(book.getStock()).isEqualTo(8);
+        assertThat(book.getSoldCount()).isEqualTo(7);
+        verify(emailService).sendOrderConfirmationEmail(user, order);
+    }
+
+    @Test
+    @DisplayName("confirmPayment: callback lặp không trừ tồn kho lần hai")
+    void confirmPayment_shouldBeIdempotent_whenAlreadyPaid() {
+        order.setPaymentMethod("VNPAY");
+        order.setPaymentStatus("PAID");
+        order.setVnpayTxnRef("1_123456");
+
+        when(orderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
+
+        boolean processed = orderService.confirmPayment(1L, "1_123456", 10_000_000L);
+
+        assertThat(processed).isFalse();
+        assertThat(book.getStock()).isEqualTo(10);
+        verifyNoInteractions(emailService);
+        verify(bookRepository, never()).findByIdForUpdate(anyLong());
+    }
+
+    @Test
+    @DisplayName("confirmPayment: từ chối số tiền không khớp")
+    void confirmPayment_shouldRejectWrongAmount() {
+        order.setPaymentMethod("VNPAY");
+        order.setPaymentStatus("PENDING");
+        order.setVnpayTxnRef("1_123456");
+        when(orderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.confirmPayment(1L, "1_123456", 1L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("amount");
+
+        verify(bookRepository, never()).findByIdForUpdate(anyLong());
+        assertThat(order.getPaymentStatus()).isEqualTo("PENDING");
+    }
+
+    @Test
+    @DisplayName("confirmPayment: từ chối transaction reference không khớp")
+    void confirmPayment_shouldRejectWrongTransactionReference() {
+        order.setPaymentMethod("VNPAY");
+        order.setPaymentStatus("PENDING");
+        order.setVnpayTxnRef("1_123456");
+        when(orderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.confirmPayment(1L, "1_forged", 10_000_000L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("reference");
+
+        verifyNoInteractions(bookRepository);
+    }
+
+    @Test
+    @DisplayName("confirmPayment: không trừ âm tồn kho khi hàng đã hết")
+    void confirmPayment_shouldRejectWhenStockChangedBeforeCallback() {
+        order.setPaymentMethod("VNPAY");
+        order.setPaymentStatus("PENDING");
+        order.setVnpayTxnRef("1_123456");
+        book.setStock(1);
+
+        when(orderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book));
+
+        assertThatThrownBy(() -> orderService.confirmPayment(1L, "1_123456", 10_000_000L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Không đủ hàng");
+
+        assertThat(book.getStock()).isEqualTo(1);
+        assertThat(order.getPaymentStatus()).isEqualTo("PENDING");
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("failPayment: callback thất bại không được ghi đè đơn đã thanh toán")
+    void failPayment_shouldNotOverwritePaidOrder() {
+        order.setPaymentMethod("VNPAY");
+        order.setPaymentStatus("PAID");
+        order.setStatus("Processing");
+        order.setVnpayTxnRef("1_123456");
+        when(orderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
+
+        orderService.failPayment(1L, "1_123456");
+
+        assertThat(order.getPaymentStatus()).isEqualTo("PAID");
+        assertThat(order.getStatus()).isEqualTo("Processing");
+        verify(orderRepository, never()).save(any());
+    }
 }

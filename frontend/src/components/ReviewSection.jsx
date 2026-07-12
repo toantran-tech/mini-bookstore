@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -45,15 +45,18 @@ export default function ReviewSection({ bookId }) {
     const [submitMsg, setSubmitMsg] = useState('');
     const [canReview, setCanReview] = useState(false);
 
-    const fetchReviews = async () => {
+    const fetchReviews = useCallback(async () => {
         try {
             const res = await api.get(`/reviews/book/${bookId}`);
             setReviews(res.data.reviews || []);
             setAvgRating(res.data.averageRating || 0);
             setTotalReviews(res.data.totalReviews || 0);
         } catch {
+            setReviews([]);
+            setAvgRating(0);
+            setTotalReviews(0);
         }
-    };
+    }, [bookId]);
 
     useEffect(() => {
         fetchReviews();
@@ -64,7 +67,7 @@ export default function ReviewSection({ bookId }) {
         } else {
             setCanReview(false);
         }
-    }, [bookId, token]);
+    }, [bookId, token, fetchReviews]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
