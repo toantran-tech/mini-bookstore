@@ -2,11 +2,19 @@
   <h1>Mini Bookstore</h1>
   <p>Full-stack e-commerce platform for browsing books, managing inventory and processing orders.</p>
   <p>
-    <a href="https://github.com/toantran00/mini-bookstore/actions/workflows/ci.yml">
-      <img src="https://github.com/toantran00/mini-bookstore/actions/workflows/ci.yml/badge.svg" alt="CI status" />
+    <a href="https://github.com/toantran-tech/mini-bookstore/actions/workflows/ci.yml">
+      <img src="https://github.com/toantran-tech/mini-bookstore/actions/workflows/ci.yml/badge.svg" alt="CI status" />
     </a>
   </p>
 </div>
+
+## Live deployment
+
+- Frontend (Vercel): [mini-bookstore-git-main-toantran00s-projects.vercel.app](https://mini-bookstore-git-main-toantran00s-projects.vercel.app)
+- Backend API (Render): [mini-bookstore-54a8.onrender.com](https://mini-bookstore-54a8.onrender.com)
+- Swagger UI: [API documentation](https://mini-bookstore-54a8.onrender.com/swagger-ui/index.html)
+
+The backend uses Render's free instance and may take around 50 seconds to respond after a period of inactivity.
 
 ## Highlights
 
@@ -40,7 +48,7 @@ flowchart LR
 | Backend | Java 17, Spring Boot 3.4, Spring Security, Spring Data JPA, Bean Validation, WebSocket |
 | Data | MySQL 8, Flyway |
 | Testing | JUnit 5, Mockito, MockMvc, Testcontainers |
-| Delivery | Docker, Nginx, GitHub Actions |
+| Delivery | Docker, Nginx, GitHub Actions, Vercel, Render |
 
 ## Run with Docker
 
