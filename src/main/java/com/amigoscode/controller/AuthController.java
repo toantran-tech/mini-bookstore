@@ -5,6 +5,7 @@ import com.amigoscode.Entity.User;
 import com.amigoscode.dto.AuthRequest;
 import com.amigoscode.dto.LoginResponse;
 import com.amigoscode.dto.RegisterRequest;
+import com.amigoscode.exception.ApiException;
 import com.amigoscode.repository.UserRepository;
 import com.amigoscode.security.JwtUtil;
 import com.amigoscode.service.EmailService;
@@ -63,17 +64,15 @@ public class AuthController {
         String username = body.get("username");
 
         if (email == null || email.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email không được để trống!"));
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Email không được để trống!");
         }
 
         if (username != null && userRepository.findByUsername(username).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Tên đăng nhập đã tồn tại!"));
+            throw new ApiException(HttpStatus.CONFLICT, "Tên đăng nhập đã tồn tại!");
         }
 
         if (userRepository.findByEmail(email).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Email này đã được sử dụng!"));
+            throw new ApiException(HttpStatus.CONFLICT, "Email này đã được sử dụng!");
         }
 
         String otp = String.format("%06d", new SecureRandom().nextInt(1_000_000));
@@ -87,13 +86,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Tên đăng nhập đã tồn tại!"));
+            throw new ApiException(HttpStatus.CONFLICT, "Tên đăng nhập đã tồn tại!");
         }
 
         if (!otpStore.verify(request.getEmail(), request.getOtp())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "Mã OTP không đúng hoặc đã hết hạn!"));
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Mã OTP không đúng hoặc đã hết hạn!");
         }
 
         User user = new User();
@@ -133,12 +130,12 @@ public class AuthController {
     public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
         String token = body.get("refreshToken");
         if (token == null || token.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Thiếu refreshToken"));
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Thiếu refreshToken");
         }
 
         Optional<RefreshToken> refreshTokenOpt = refreshTokenService.validateRefreshToken(token);
         if (refreshTokenOpt.isEmpty()) {
-            return ResponseEntity.status(401).body(Map.of("message", "Refresh token không hợp lệ hoặc đã hết hạn"));
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Refresh token không hợp lệ hoặc đã hết hạn");
         }
 
         String username = refreshTokenOpt.get().getUsername();

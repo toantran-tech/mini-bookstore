@@ -31,7 +31,7 @@
 
 **Frontend:** React 19, Vite, Tailwind CSS 4, Redux Toolkit, React Router, Recharts, Axios, STOMP/WebSocket.
 
-**Backend:** Java 17, Spring Boot 3.4, Spring Security, Spring Data JPA, MySQL, Spring Mail, Spring Cache, Bucket4j and Cloudinary.
+**Backend:** Java 17, Spring Boot 3.4, Spring Security, Spring Data JPA, Flyway, MySQL, Spring Mail, Spring Cache, Bucket4j and Cloudinary.
 
 ## Getting started
 
@@ -58,6 +58,7 @@ Required backend variables:
 | `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD` | MySQL connection |
 | `JWT_SECRET` | JWT signing key; use a random secret of at least 32 bytes |
 | `FRONTEND_URL` | Comma-separated trusted origins, for example `http://localhost:5173` |
+| `FLYWAY_BASELINE_ON_MIGRATE` | Set to `true` only once when adopting Flyway on an existing non-empty database |
 | `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP credentials for OTP/order email |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Image storage |
 | `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_RETURN_URL`, `FRONTEND_PAYMENT_RETURN_URL` | VNPay sandbox callback and verified-result redirect |
@@ -90,4 +91,4 @@ cd frontend
 npm run build
 ```
 
-The current database schema is created by Hibernate with `ddl-auto=update`; versioned migrations are planned before production use.
+Flyway applies versioned migrations from `src/main/resources/db/migration`; Hibernate runs with `ddl-auto=validate`.

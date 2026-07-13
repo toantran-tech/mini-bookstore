@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amigoscode.Entity.Book;
+import com.amigoscode.exception.ApiException;
 import com.amigoscode.dto.AdminStatsResponse;
 import com.amigoscode.repository.BookRepository;
 import com.amigoscode.repository.OrderRepository;
@@ -107,7 +109,7 @@ public class AdminController {
                     "message", "Upload ảnh thành công!",
                     "imageUrl", imageUrl));
         } catch (IOException e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Lỗi upload: " + e.getMessage()));
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Không thể upload ảnh");
         }
     }
 

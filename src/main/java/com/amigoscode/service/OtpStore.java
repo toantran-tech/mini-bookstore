@@ -1,13 +1,12 @@
 package com.amigoscode.service;
 
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class OtpStore {
