@@ -2,8 +2,9 @@
   <h1>Mini Bookstore</h1>
   <p>Full-stack e-commerce platform for browsing books, managing inventory and processing orders.</p>
   <p>
-    <a href="https://github.com/toantran00/mini-bookstore/actions/workflows/ci.yml">CI</a>
-    · <a href="http://localhost:8080/swagger-ui/index.html">Swagger (local)</a>
+    <a href="https://github.com/toantran00/mini-bookstore/actions/workflows/ci.yml">
+      <img src="https://github.com/toantran00/mini-bookstore/actions/workflows/ci.yml/badge.svg" alt="CI status" />
+    </a>
   </p>
 </div>
 
