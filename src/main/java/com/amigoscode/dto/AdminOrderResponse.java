@@ -1,6 +1,7 @@
 package com.amigoscode.dto;
 
 import lombok.Data;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,9 +15,9 @@ public class AdminOrderResponse {
     private String shippingAddress;
     private String shippingMethod;
     private String couponCode;
-    private double subtotal;
-    private double discountAmount;
-    private double shippingFee;
-    private double totalAmount;
+    private BigDecimal subtotal;
+    private BigDecimal discountAmount;
+    private BigDecimal shippingFee;
+    private BigDecimal totalAmount;
     private List<OrderItemResponse> items;
 }

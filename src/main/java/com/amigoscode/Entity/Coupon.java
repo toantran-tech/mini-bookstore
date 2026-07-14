@@ -3,6 +3,8 @@ package com.amigoscode.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -10,23 +12,29 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "coupons")
 public class Coupon {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String code; 
+    private String code;
 
-    private String discountType; 
-    private double discountValue; 
+    private String discountType;
 
-    private double minOrderValue; 
-    private double maxDiscount; 
+    @Column(precision = 15, scale = 2)
+    private BigDecimal discountValue;
 
-    private int maxUsage; 
-    private int usedCount; 
+    @Column(precision = 15, scale = 2)
+    private BigDecimal minOrderValue;
 
-    private LocalDateTime expiresAt; 
+    @Column(precision = 15, scale = 2)
+    private BigDecimal maxDiscount;
 
-    private boolean active; 
+    private int maxUsage;
+    private int usedCount;
+
+    private LocalDateTime expiresAt;
+
+    private boolean active;
 }

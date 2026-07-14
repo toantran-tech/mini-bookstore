@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amigoscode.Entity.Book;
+import com.amigoscode.Entity.OrderStatus;
 import com.amigoscode.exception.ApiException;
 import com.amigoscode.dto.AdminStatsResponse;
 import com.amigoscode.repository.BookRepository;
@@ -42,7 +43,7 @@ public class AdminController {
     public ResponseEntity<AdminStatsResponse> getStats() {
 
         long totalOrders = orderRepository.count();
-        double totalRevenue = orderRepository.getTotalRevenue();
+        java.math.BigDecimal totalRevenue = orderRepository.getTotalRevenue(OrderStatus.Delivered);
         long totalBooks = bookRepository.count();
         long totalUsers = userRepository.count();
 
@@ -55,16 +56,15 @@ public class AdminController {
         }
 
         List<Map<String, Object>> revenueByMonth = new ArrayList<>();
-        List<Object[]> monthRows = orderRepository.findMonthlyRevenue();
+        List<Object[]> monthRows = orderRepository.findMonthlyRevenue(OrderStatus.Delivered);
 
         for (Object[] row : monthRows) {
             Map<String, Object> entry = new HashMap<>();
             int year = ((Number) row[0]).intValue();
             int month = ((Number) row[1]).intValue();
-            double revenue = ((Number) row[2]).doubleValue();
+            java.math.BigDecimal revenue = (java.math.BigDecimal) row[2];
 
             String monthKey = String.format("%d-%02d", year, month);
-
             entry.put("month", monthKey);
             entry.put("revenue", revenue);
             revenueByMonth.add(entry);
@@ -76,7 +76,8 @@ public class AdminController {
                     Map<String, Object> entry = new HashMap<>();
                     entry.put("title", book.getTitle());
                     entry.put("sold", book.getSoldCount());
-                    entry.put("revenue", book.getSoldCount() * book.getPrice());
+                    entry.put("revenue",
+                            java.math.BigDecimal.valueOf(book.getSoldCount()).multiply(book.getPrice()));
                     entry.put("imageUrl", book.getImageUrl());
                     topBooks.add(entry);
                 });

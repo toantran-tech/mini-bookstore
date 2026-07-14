@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,8 +27,8 @@ public class Book {
     @Column(unique = true)
     private String isbn;
 
-    @Column(nullable = false)
-    private double price;
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

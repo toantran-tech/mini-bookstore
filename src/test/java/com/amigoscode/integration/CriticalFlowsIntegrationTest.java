@@ -4,6 +4,7 @@ import com.amigoscode.Entity.Book;
 import com.amigoscode.Entity.Category;
 import com.amigoscode.Entity.Coupon;
 import com.amigoscode.Entity.Order;
+import com.amigoscode.Entity.PaymentStatus;
 import com.amigoscode.Entity.User;
 import com.amigoscode.dto.OrderItemRequest;
 import com.amigoscode.dto.OrderRequest;
@@ -26,6 +27,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -92,7 +94,7 @@ class CriticalFlowsIntegrationTest extends MySqlContainerTest {
     @Test
     void placeOrder_appliesCouponAndUpdatesStock() throws Exception {
         User buyer = saveUser("cash_buyer");
-        Book book = saveBook(10, 100_000);
+        Book book = saveBook(10, BigDecimal.valueOf(100_000));
         Coupon coupon = saveCoupon("SAVE10");
 
         mockMvc.perform(post("/api/orders")
@@ -105,29 +107,35 @@ class CriticalFlowsIntegrationTest extends MySqlContainerTest {
         assertThat(bookRepository.findById(book.getId()).orElseThrow().getStock()).isEqualTo(8);
         assertThat(couponRepository.findById(coupon.getId()).orElseThrow().getUsedCount()).isEqualTo(1);
         assertThat(orderRepository.findAll()).singleElement().satisfies(order -> {
-            assertThat(order.getDiscountAmount()).isEqualTo(20_000);
-            assertThat(order.getTotalAmount()).isEqualTo(180_000);
+            assertThat(order.getDiscountAmount()).isEqualByComparingTo(BigDecimal.valueOf(20_000));
+            assertThat(order.getTotalAmount()).isEqualByComparingTo(BigDecimal.valueOf(180_000));
         });
     }
 
     @Test
     void vnpayCallback_validAndRepeated_updatesStockAndCouponExactlyOnce() throws Exception {
         User buyer = saveUser("vnpay_buyer");
-        Book book = saveBook(10, 100_000);
+        Book book = saveBook(10, BigDecimal.valueOf(100_000));
         Coupon coupon = saveCoupon("PAY10");
         Order pending = orderService.placeOrderPending(
                 buyer.getUsername(), orderRequest(book.getId(), coupon.getCode()), "VNPAY");
         when(vnPayService.validateCallback(anyMap())).thenReturn(true);
 
+        // VNPay sends amount × 100 as a long integer
+        long vnpAmount = pending.getTotalAmount()
+                .multiply(BigDecimal.valueOf(100))
+                .longValue();
+
         String callback = "/api/orders/vnpay-return?vnp_TxnRef=" + pending.getVnpayTxnRef()
-                + "&vnp_ResponseCode=00&vnp_Amount=" + Math.round(pending.getTotalAmount() * 100);
+                + "&vnp_ResponseCode=00&vnp_Amount=" + vnpAmount;
 
         mockMvc.perform(get(callback))
                 .andExpect(status().isSeeOther())
                 .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("success=true")));
         mockMvc.perform(get(callback)).andExpect(status().isSeeOther());
 
-        assertThat(orderRepository.findById(pending.getId()).orElseThrow().getPaymentStatus()).isEqualTo("PAID");
+        assertThat(orderRepository.findById(pending.getId()).orElseThrow().getPaymentStatus())
+                .isEqualTo(PaymentStatus.PAID);
         assertThat(bookRepository.findById(book.getId()).orElseThrow().getStock()).isEqualTo(8);
         assertThat(couponRepository.findById(coupon.getId()).orElseThrow().getUsedCount()).isEqualTo(1);
     }
@@ -135,19 +143,24 @@ class CriticalFlowsIntegrationTest extends MySqlContainerTest {
     @Test
     void vnpayCallback_invalidSignature_keepsOrderAndInventoryUntouched() throws Exception {
         User buyer = saveUser("invalid_signature_buyer");
-        Book book = saveBook(10, 100_000);
+        Book book = saveBook(10, BigDecimal.valueOf(100_000));
         Order pending = orderService.placeOrderPending(
                 buyer.getUsername(), orderRequest(book.getId(), null), "VNPAY");
         when(vnPayService.validateCallback(anyMap())).thenReturn(false);
 
+        long vnpAmount = pending.getTotalAmount()
+                .multiply(BigDecimal.valueOf(100))
+                .longValue();
+
         mockMvc.perform(get("/api/orders/vnpay-return")
                         .param("vnp_TxnRef", pending.getVnpayTxnRef())
                         .param("vnp_ResponseCode", "00")
-                        .param("vnp_Amount", String.valueOf(Math.round(pending.getTotalAmount() * 100))))
+                        .param("vnp_Amount", String.valueOf(vnpAmount)))
                 .andExpect(status().isSeeOther())
                 .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("INVALID_SIGNATURE")));
 
-        assertThat(orderRepository.findById(pending.getId()).orElseThrow().getPaymentStatus()).isEqualTo("PENDING");
+        assertThat(orderRepository.findById(pending.getId()).orElseThrow().getPaymentStatus())
+                .isEqualTo(PaymentStatus.PENDING);
         assertThat(bookRepository.findById(book.getId()).orElseThrow().getStock()).isEqualTo(10);
     }
 
@@ -163,6 +176,8 @@ class CriticalFlowsIntegrationTest extends MySqlContainerTest {
                 .andExpect(jsonPath("$.path").value("/api/auth/login"));
     }
 
+    // ─── helpers ─────────────────────────────────────────────────────────────
+
     private User saveUser(String username) {
         User user = new User();
         user.setUsername(username);
@@ -172,7 +187,7 @@ class CriticalFlowsIntegrationTest extends MySqlContainerTest {
         return userRepository.save(user);
     }
 
-    private Book saveBook(int stock, double price) {
+    private Book saveBook(int stock, BigDecimal price) {
         Category category = new Category();
         category.setName("Integration " + System.nanoTime());
         category = categoryRepository.save(category);
@@ -192,9 +207,9 @@ class CriticalFlowsIntegrationTest extends MySqlContainerTest {
         Coupon coupon = new Coupon();
         coupon.setCode(code);
         coupon.setDiscountType("PERCENT");
-        coupon.setDiscountValue(10);
-        coupon.setMinOrderValue(0);
-        coupon.setMaxDiscount(50_000);
+        coupon.setDiscountValue(BigDecimal.valueOf(10));
+        coupon.setMinOrderValue(BigDecimal.ZERO);
+        coupon.setMaxDiscount(BigDecimal.valueOf(50_000));
         coupon.setMaxUsage(10);
         coupon.setUsedCount(0);
         coupon.setExpiresAt(LocalDateTime.now().plusDays(1));

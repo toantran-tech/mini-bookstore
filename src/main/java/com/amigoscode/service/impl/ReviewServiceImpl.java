@@ -1,6 +1,7 @@
 package com.amigoscode.service.impl;
 
 import com.amigoscode.Entity.Book;
+import com.amigoscode.Entity.OrderStatus;
 import com.amigoscode.Entity.Review;
 import com.amigoscode.Entity.User;
 import com.amigoscode.dto.ReviewRequest;
@@ -42,7 +43,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new IllegalStateException("Bạn đã đánh giá cuốn sách này rồi!");
         }
 
-        if (!orderRepository.hasUserPurchasedAndReceivedBook(username, book.getId())) {
+        if (!orderRepository.hasUserPurchasedAndReceivedBook(username, book.getId(), OrderStatus.Delivered)) {
             throw new IllegalStateException("Bạn phải mua và nhận hàng thành công thì mới được đánh giá!");
         }
 
@@ -89,7 +90,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public boolean canReview(String username, Long bookId) {
-        if (!orderRepository.hasUserPurchasedAndReceivedBook(username, bookId)) {
+        if (!orderRepository.hasUserPurchasedAndReceivedBook(username, bookId, OrderStatus.Delivered)) {
             return false;
         }
         User user = userRepository.findByUsername(username).orElse(null);

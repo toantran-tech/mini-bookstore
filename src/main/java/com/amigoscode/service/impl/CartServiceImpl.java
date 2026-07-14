@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public class CartServiceImpl implements CartService {
         res.setImageUrl(item.getBook().getImageUrl());
         res.setPrice(item.getBook().getPrice());
         res.setQuantity(item.getQuantity());
-        res.setSubtotal(item.getBook().getPrice() * item.getQuantity());
+        res.setSubtotal(item.getBook().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         return res;
     }
 
@@ -43,9 +44,9 @@ public class CartServiceImpl implements CartService {
                 .map(this::toItemResponse)
                 .collect(Collectors.toList());
 
-        double totalPrice = itemResponses.stream()
-                .mapToDouble(CartItemResponse::getSubtotal)
-                .sum();
+        BigDecimal totalPrice = itemResponses.stream()
+                .map(CartItemResponse::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         int totalItems = itemResponses.stream()
                 .mapToInt(CartItemResponse::getQuantity)

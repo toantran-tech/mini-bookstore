@@ -4,6 +4,7 @@ import com.amigoscode.Entity.Book;
 import com.amigoscode.dto.BookResponse;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface BookService {
@@ -15,8 +16,8 @@ public interface BookService {
             String author,
             String isbn,
             String categoryName,
-            Double minPrice,
-            Double maxPrice,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
             String sortBy,
             int page,
             int size

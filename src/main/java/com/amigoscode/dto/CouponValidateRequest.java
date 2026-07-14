@@ -2,8 +2,10 @@ package com.amigoscode.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class CouponValidateRequest {
     private String code;
-    private double orderSubtotal; // Tiền hàng trước khi áp mã
+    private BigDecimal orderSubtotal; // Cart subtotal before applying coupon code
 }

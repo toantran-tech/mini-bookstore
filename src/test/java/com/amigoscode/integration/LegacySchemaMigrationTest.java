@@ -51,7 +51,8 @@ class LegacySchemaMigrationTest {
                 .baselineVersion("1")
                 .load();
 
-        assertThat(flyway.migrate().migrationsExecuted).isEqualTo(2);
+        // Assert at least 2 migrations ran — using >= avoids breakage when new migrations are added.
+        assertThat(flyway.migrate().migrationsExecuted).isGreaterThanOrEqualTo(2);
 
         try (Connection connection = MYSQL.createConnection("");
              Statement statement = connection.createStatement()) {

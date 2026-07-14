@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.amigoscode.Entity.Order;
+import com.amigoscode.Entity.OrderStatus;
 import com.amigoscode.dto.OrderHistoryResponse;
 import com.amigoscode.dto.OrderRequest;
 import com.amigoscode.dto.OrderResponse;
@@ -128,8 +129,10 @@ public class OrderController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getAllOrders() {
-        return ResponseEntity.ok(orderService.getAllOrdersForAdmin());
+    public ResponseEntity<?> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(orderService.getAllOrdersForAdmin(page, size));
     }
 
     @PatchMapping("/{id}/status")
@@ -137,7 +140,15 @@ public class OrderController {
     public ResponseEntity<?> updateOrderStatus(
             @PathVariable Long id,
             @RequestBody Map<String, String> statusRequest) {
-        String newStatus = statusRequest.get("status");
+        String rawStatus = statusRequest.get("status");
+        OrderStatus newStatus;
+        try {
+            newStatus = OrderStatus.valueOf(rawStatus);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return ResponseEntity.badRequest().body(
+                    java.util.Map.of("message", "Trạng thái không hợp lệ: " + rawStatus));
+        }
+
         orderService.updateOrderStatus(id, newStatus);
 
         String ownerUsername = orderService.getOrderOwnerUsername(id);
@@ -145,9 +156,8 @@ public class OrderController {
             notificationService.sendToUser(
                     ownerUsername,
                     "Đơn hàng #" + id + " đã cập nhật",
-                    "Đơn hàng của bạn đã chuyển sang trạng thái: " + newStatus);
+                    "Đơn hàng của bạn đã chuyển sang trạng thái: " + newStatus.name());
         }
-
         return ResponseEntity.ok(Map.of("message", "Cập nhật trạng thái đơn hàng thành công!"));
     }
 }

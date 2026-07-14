@@ -1,5 +1,6 @@
 package com.amigoscode.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -68,10 +69,10 @@ public class BookController {
             @RequestParam(required = false) String categoryName,
 
             @Parameter(description = "Giá tối thiểu", example = "10.0")
-            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) BigDecimal minPrice,
 
             @Parameter(description = "Giá tối đa", example = "50.0")
-            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
 
             @Parameter(description = "Sắp xếp: newest | bestseller | price_asc | price_desc", example = "bestseller")
             @RequestParam(required = false, defaultValue = "") String sortBy,

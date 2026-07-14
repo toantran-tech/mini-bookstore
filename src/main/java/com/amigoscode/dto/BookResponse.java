@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,7 +16,7 @@ public class BookResponse {
     private String author;
     private String isbn;
     private String categoryName;
-    private double price;
+    private BigDecimal price;
     private Integer stock;
     private String imageUrl;
     private String description;

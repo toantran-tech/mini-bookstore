@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -26,13 +28,16 @@ public class VNPayService {
     private String returnUrl;
 
     /**
-     * Tạo URL redirect sang cổng thanh toán VNPay
-     * @param orderId  ID đơn hàng
-     * @param amount   Số tiền VND (chưa nhân 100)
-     * @param ipAddr   IP của client
+     * Builds a VNPay redirect URL for the given order.
+     * @param txnRef  Unique transaction reference (orderId_timestamp)
+     * @param orderId Order ID (used in the order info description)
+     * @param amount  Order total in VND (BigDecimal — VNPay receives amount × 100 as a long)
+     * @param ipAddr  Client IP address
      */
-    public String createPaymentUrl(String txnRef, Long orderId, double amount, String ipAddr) {
-        long vnpAmount  = Math.round(amount * 100);                         // VNPay yêu cầu nhân 100
+    public String createPaymentUrl(String txnRef, Long orderId, BigDecimal amount, String ipAddr) {
+        long vnpAmount = amount.multiply(BigDecimal.valueOf(100))
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValueExact(); // VNPay requires amount × 100 as integer
         String createDate = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String expireDate = new SimpleDateFormat("yyyyMMddHHmmss")
                 .format(new Date(System.currentTimeMillis() + 15 * 60 * 1000)); // 15 phút

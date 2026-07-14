@@ -1,6 +1,7 @@
 package com.amigoscode.service;
 
 import com.amigoscode.Entity.Book;
+import com.amigoscode.Entity.OrderStatus;
 import com.amigoscode.Entity.Review;
 import com.amigoscode.Entity.User;
 import com.amigoscode.dto.ReviewRequest;
@@ -68,7 +69,7 @@ class ReviewServiceImplTest {
         when(userRepository.findByUsername("buyer")).thenReturn(Optional.of(user));
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(reviewRepository.existsByUserIdAndBookId(1L, 1L)).thenReturn(false);
-        when(orderRepository.hasUserPurchasedAndReceivedBook("buyer", 1L)).thenReturn(true);
+        when(orderRepository.hasUserPurchasedAndReceivedBook("buyer", 1L, OrderStatus.Delivered)).thenReturn(true);
         when(reviewRepository.save(any(Review.class))).thenReturn(saved);
 
         ReviewResponse result = reviewService.createReview("buyer", validRequest);
@@ -84,7 +85,7 @@ class ReviewServiceImplTest {
         when(userRepository.findByUsername("buyer")).thenReturn(Optional.of(user));
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(reviewRepository.existsByUserIdAndBookId(1L, 1L)).thenReturn(false);
-        when(orderRepository.hasUserPurchasedAndReceivedBook("buyer", 1L)).thenReturn(false);
+        when(orderRepository.hasUserPurchasedAndReceivedBook("buyer", 1L, OrderStatus.Delivered)).thenReturn(false);
 
         assertThatThrownBy(() -> reviewService.createReview("buyer", validRequest))
                 .isInstanceOf(IllegalStateException.class)
@@ -176,7 +177,7 @@ class ReviewServiceImplTest {
     @Test
     @DisplayName("canReview: trả về true khi đủ điều kiện")
     void canReview_shouldReturnTrue_whenEligible() {
-        when(orderRepository.hasUserPurchasedAndReceivedBook("buyer", 1L)).thenReturn(true);
+        when(orderRepository.hasUserPurchasedAndReceivedBook("buyer", 1L, OrderStatus.Delivered)).thenReturn(true);
         when(userRepository.findByUsername("buyer")).thenReturn(Optional.of(user));
         when(reviewRepository.existsByUserIdAndBookId(1L, 1L)).thenReturn(false);
 
@@ -186,7 +187,7 @@ class ReviewServiceImplTest {
     @Test
     @DisplayName("canReview: trả về false khi chưa mua hàng")
     void canReview_shouldReturnFalse_whenNotPurchased() {
-        when(orderRepository.hasUserPurchasedAndReceivedBook("buyer", 1L)).thenReturn(false);
+        when(orderRepository.hasUserPurchasedAndReceivedBook("buyer", 1L, OrderStatus.Delivered)).thenReturn(false);
 
         assertThat(reviewService.canReview("buyer", 1L)).isFalse();
     }

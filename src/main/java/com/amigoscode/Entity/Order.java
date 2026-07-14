@@ -1,10 +1,14 @@
 package com.amigoscode.Entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,13 +26,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "orders")
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private LocalDateTime orderDate;
 
-    private String status;
+    /** High-level fulfilment state (Pending → Processing → Shipped → Delivered | Cancelled). */
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -40,13 +47,25 @@ public class Order {
     private String shippingAddress;
     private String shippingMethod;
     private String couponCode;
-    private double discountAmount;
-    private double subtotal;
-    private double totalAmount;
-    private double shippingFee;
 
-    private String paymentMethod;   
-    private String paymentStatus;   
-    @jakarta.persistence.Column(unique = true, length = 100)
-    private String vnpayTxnRef;     
+    /** Use BigDecimal for monetary values to avoid floating-point rounding errors. */
+    @Column(precision = 15, scale = 2)
+    private BigDecimal discountAmount;
+
+    @Column(precision = 15, scale = 2)
+    private BigDecimal subtotal;
+
+    @Column(precision = 15, scale = 2)
+    private BigDecimal totalAmount;
+
+    @Column(precision = 15, scale = 2)
+    private BigDecimal shippingFee;
+
+    private String paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
+    @Column(unique = true, length = 100)
+    private String vnpayTxnRef;
 }

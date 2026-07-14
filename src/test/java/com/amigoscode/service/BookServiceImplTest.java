@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,7 +48,7 @@ class BookServiceImplTest {
         sampleBook.setId(1L);
         sampleBook.setTitle("Clean Code");
         sampleBook.setAuthor("Robert C. Martin");
-        sampleBook.setPrice(29.99);
+        sampleBook.setPrice(BigDecimal.valueOf(29.99));
         sampleBook.setStock(10);
         sampleBook.setCategory(category);
         sampleBook.setImageUrl("https://example.com/clean-code.jpg");
@@ -55,7 +56,6 @@ class BookServiceImplTest {
         sampleBook.setSoldCount(50);
         sampleBook.setViewCount(200);
     }
-
 
     @Test
     @DisplayName("addBook: thành công khi dữ liệu hợp lệ")
@@ -72,7 +72,7 @@ class BookServiceImplTest {
     @Test
     @DisplayName("addBook: ném IllegalArgumentException khi giá âm")
     void addBook_shouldThrowException_whenPriceIsNegative() {
-        sampleBook.setPrice(-5.0);
+        sampleBook.setPrice(BigDecimal.valueOf(-5.0));
 
         assertThatThrownBy(() -> bookService.addBook(sampleBook))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -80,7 +80,6 @@ class BookServiceImplTest {
 
         verify(bookRepository, never()).save(any()); // đảm bảo save() KHÔNG được gọi
     }
-
 
     @Test
     @DisplayName("getBookById: trả về BookResponse đầy đủ thông tin khi tìm thấy")
@@ -108,7 +107,6 @@ class BookServiceImplTest {
                 .hasMessageContaining("Book not found with ID: 99");
     }
 
-
     @Test
     @DisplayName("getAllBooks: trả về danh sách đúng số lượng")
     void getAllBooks_shouldReturnListOfBookResponses() {
@@ -130,7 +128,6 @@ class BookServiceImplTest {
         assertThat(result).isEmpty();
     }
 
-
     @Test
     @DisplayName("getAllBooks (filter): trả về Page<BookResponse> đúng khi có kết quả")
     void getAllBooks_withFilter_shouldReturnPage() {
@@ -139,7 +136,7 @@ class BookServiceImplTest {
                 .thenReturn(fakePage);
 
         Page<BookResponse> result = bookService.getAllBooks(
-                "Clean", "Fiction", null, null, 10.0, 50.0, "bestseller", 0, 10);
+                "Clean", "Fiction", null, null, BigDecimal.valueOf(10.0), BigDecimal.valueOf(50.0), "bestseller", 0, 10);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).getTitle()).isEqualTo("Clean Code");
@@ -157,14 +154,13 @@ class BookServiceImplTest {
         assertThat(result).isNotNull();
     }
 
-
     @Test
     @DisplayName("updateBook: cập nhật thành công và trả về BookResponse mới")
     void updateBook_shouldReturnUpdatedBookResponse_whenFound() {
         BookResponse updateRequest = new BookResponse();
         updateRequest.setTitle("Clean Code 2nd Ed");
         updateRequest.setAuthor("Robert C. Martin");
-        updateRequest.setPrice(39.99);
+        updateRequest.setPrice(BigDecimal.valueOf(39.99));
         updateRequest.setStock(5);
         updateRequest.setImageUrl("https://example.com/new.jpg");
         updateRequest.setDescription("Updated description");
@@ -188,7 +184,6 @@ class BookServiceImplTest {
                 .hasMessageContaining("Book not found with ID: 99");
     }
 
-
     @Test
     @DisplayName("deleteBookById: xóa thành công khi tìm thấy")
     void deleteBookById_shouldDeleteBook_whenFound() {
@@ -211,7 +206,6 @@ class BookServiceImplTest {
         verify(bookRepository, never()).delete(any());
     }
 
-
     @Test
     @DisplayName("getSimilarBooks: trả về danh sách sách cùng category")
     void getSimilarBooks_shouldReturnBooksInSameCategory() {
@@ -219,7 +213,7 @@ class BookServiceImplTest {
         anotherBook.setId(2L);
         anotherBook.setTitle("The Pragmatic Programmer");
         anotherBook.setAuthor("David Thomas");
-        anotherBook.setPrice(34.99);
+        anotherBook.setPrice(BigDecimal.valueOf(34.99));
         anotherBook.setStock(8);
         anotherBook.setCategory(category);
         anotherBook.setSoldCount(30);
@@ -257,7 +251,6 @@ class BookServiceImplTest {
                 .hasMessageContaining("Book not found with ID: 99");
     }
 
-
     @Test
     @DisplayName("getTopBooks: trả về Map gồm bestsellers và mostViewed")
     void getTopBooks_shouldReturnMapWithBestSellersAndMostViewed() {
@@ -283,7 +276,6 @@ class BookServiceImplTest {
         assertThat(result.get("bestsellers")).isEmpty();
         assertThat(result.get("mostViewed")).isEmpty();
     }
-
 
     @Test
     @DisplayName("incrementViewCount: tăng viewCount thêm 1 khi tìm thấy sách")

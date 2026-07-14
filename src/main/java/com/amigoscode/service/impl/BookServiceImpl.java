@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -26,7 +27,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @CacheEvict(value = "topBooks", allEntries = true)
     public Book addBook(Book book) {
-        if (book.getPrice() < 0) {
+        if (book.getPrice() != null && book.getPrice().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Price cannot be negative");
         }
         return bookRepository.save(book);
@@ -45,8 +46,8 @@ public class BookServiceImpl implements BookService {
             String author,
             String isbn,
             String categoryName,
-            Double minPrice,
-            Double maxPrice,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
             String sortBy,
             int page,
             int size) {

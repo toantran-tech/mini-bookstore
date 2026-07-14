@@ -4,11 +4,13 @@ import com.amigoscode.Entity.Book;
 import com.amigoscode.Entity.Coupon;
 import com.amigoscode.Entity.Order;
 import com.amigoscode.Entity.OrderDetail;
+import com.amigoscode.Entity.OrderStatus;
+import com.amigoscode.Entity.PaymentStatus;
 import com.amigoscode.Entity.User;
 import com.amigoscode.dto.AdminOrderResponse;
 import com.amigoscode.dto.OrderHistoryResponse;
-import com.amigoscode.dto.OrderItemResponse;
 import com.amigoscode.dto.OrderItemRequest;
+import com.amigoscode.dto.OrderItemResponse;
 import com.amigoscode.dto.OrderRequest;
 import com.amigoscode.repository.BookRepository;
 import com.amigoscode.repository.CouponRepository;
@@ -17,8 +19,13 @@ import com.amigoscode.repository.UserRepository;
 import com.amigoscode.service.EmailService;
 import com.amigoscode.service.OrderService;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,220 +52,52 @@ public class OrderServiceImpl implements OrderService {
         this.emailService = emailService;
     }
 
+    // ─── COD (immediate) order ────────────────────────────────────
+
     @Override
     @Transactional
     public Order placeOrder(String username, OrderRequest request) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        User user = findUser(username);
 
-        Order order = new Order();
-        order.setUser(user);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus("Pending");
+        Order order = initOrder(user, request);
+        order.setPaymentMethod("COD");
+        order.setPaymentStatus(null); // COD has no electronic payment status
 
-        order.setShippingAddress(request.getShippingAddress());
-        order.setShippingMethod(request.getShippingMethod());
-        order.setShippingFee(calcShippingFee(request.getShippingMethod()));
+        BuildResult result = buildOrderItems(request, order);
+        applyPricing(order, result.subtotal, result.details, request.getCouponCode(), true);
 
-        double subtotal = 0.0;
-        List<OrderDetail> orderDetails = new ArrayList<>();
-
-        for (OrderItemRequest itemRequest : request.getItems()) {
-            Book book = bookRepository.findById(itemRequest.getBookId())
-                    .orElseThrow(() -> new IllegalArgumentException("Book not found: " + itemRequest.getBookId()));
-
-            if (book.getStock() < itemRequest.getQuantity()) {
-                throw new IllegalArgumentException("Không đủ hàng: " + book.getTitle());
-            }
-
-            book.setStock(book.getStock() - itemRequest.getQuantity());
-            book.setSoldCount((book.getSoldCount() == null ? 0 : book.getSoldCount()) + itemRequest.getQuantity());
-            bookRepository.save(book);
-
-            subtotal += book.getPrice() * itemRequest.getQuantity();
-
-            OrderDetail detail = new OrderDetail();
-            detail.setOrder(order);
-            detail.setBook(book);
-            detail.setQuantity(itemRequest.getQuantity());
-            detail.setPrice(book.getPrice());
-            orderDetails.add(detail);
-        }
-
-        order.setSubtotal(subtotal);
-
-        double discountAmount = 0;
-        if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
-            Coupon coupon = couponRepository.findByCode(request.getCouponCode().trim().toUpperCase())
-                    .orElse(null);
-
-            if (coupon != null && coupon.isActive() && subtotal >= coupon.getMinOrderValue()) {
-                if ("PERCENT".equalsIgnoreCase(coupon.getDiscountType())) {
-                    discountAmount = subtotal * coupon.getDiscountValue() / 100.0;
-                    if (coupon.getMaxDiscount() > 0) discountAmount = Math.min(discountAmount, coupon.getMaxDiscount());
-                } else {
-                    discountAmount = coupon.getDiscountValue();
-                }
-                discountAmount = Math.min(discountAmount, subtotal);
-
-                coupon.setUsedCount(coupon.getUsedCount() + 1);
-                couponRepository.save(coupon);
-
-                order.setCouponCode(coupon.getCode());
-            }
-        }
-
-        order.setDiscountAmount(discountAmount);
-        order.setTotalAmount(subtotal + order.getShippingFee() - discountAmount);
-        order.setOrderDetails(orderDetails);
-
-        Order savedOrder = orderRepository.save(order);
-
-        emailService.sendOrderConfirmationEmail(user, savedOrder);
-
-        return savedOrder;
+        Order saved = orderRepository.save(order);
+        emailService.sendOrderConfirmationEmail(user, saved);
+        return saved;
     }
 
-    private double calcShippingFee(String method) {
-        if (method == null) return 0;
-        return switch (method.toUpperCase()) {
-            case "EXPRESS"  -> 20000;
-            case "SAME_DAY" -> 50000;
-            default         -> 0;     // STANDARD = miễn phí
-        };
-    }
-
-    @Override
-    public List<Order> findByUserId(Long userId) {
-        return List.of();
-    }
-
-    @Override
-    public List<OrderHistoryResponse> getMyOrderHistory(String username) {
-        List<Order> orders = orderRepository.findByUserUsername(username);
-        return orders.stream().map(order -> {
-            OrderHistoryResponse response = new OrderHistoryResponse();
-            response.setId(order.getId());
-            response.setOrderDate(order.getOrderDate());
-            response.setTotalAmount(order.getTotalAmount());
-            response.setStatus(order.getStatus());
-
-            List<OrderItemResponse> items = order.getOrderDetails().stream()
-                    .map(detail -> new OrderItemResponse(
-                            detail.getBook().getTitle(),
-                            detail.getQuantity(),
-                            detail.getPrice()
-                    )).toList();
-            response.setItems(items);
-            return response;
-        }).toList();
-    }
-
-    @Override
-    public List<AdminOrderResponse> getAllOrdersForAdmin() {
-        return orderRepository.findAll().stream().map(order -> {
-            AdminOrderResponse dto = new AdminOrderResponse();
-            dto.setId(order.getId());
-            dto.setOrderDate(order.getOrderDate());
-            dto.setStatus(order.getStatus());
-            dto.setUsername(order.getUser() != null ? order.getUser().getUsername() : "N/A");
-            dto.setEmail(order.getUser() != null ? order.getUser().getEmail() : "N/A");
-            dto.setShippingAddress(order.getShippingAddress());
-            dto.setShippingMethod(order.getShippingMethod());
-            dto.setCouponCode(order.getCouponCode());
-            dto.setSubtotal(order.getSubtotal());
-            dto.setDiscountAmount(order.getDiscountAmount());
-            dto.setShippingFee(order.getShippingFee());
-            dto.setTotalAmount(order.getTotalAmount());
-            if (order.getOrderDetails() != null) {
-                dto.setItems(order.getOrderDetails().stream()
-                        .map(d -> new OrderItemResponse(
-                                d.getBook() != null ? d.getBook().getTitle() : "N/A",
-                                d.getQuantity(),
-                                d.getPrice()))
-                        .toList());
-            }
-            return dto;
-        }).toList();
-    }
-
-    @Override
-    public void updateOrderStatus(Long orderId, String newStatus) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
-        order.setStatus(newStatus);
-        orderRepository.save(order);
-    }
-
-    // ─── VNPay methods ───────────────────────────────────────────
+    // ─── VNPay pending order ──────────────────────────────────────
 
     /**
-     * Tạo đơn hàng với status PENDING_PAYMENT cho VNPay.
-     * Chưa trừ stock, chờ VNPay callback confirm mới xử lý tiếp.
+     * Creates an order in PENDING state for VNPay.
+     * Stock is NOT deducted yet — that happens in {@link #confirmPayment}.
      */
     @Override
     @Transactional
     public Order placeOrderPending(String username, OrderRequest request, String paymentMethod) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        User user = findUser(username);
 
-        Order order = new Order();
-        order.setUser(user);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus("Pending");
+        Order order = initOrder(user, request);
         order.setPaymentMethod(paymentMethod);
-        order.setPaymentStatus("PENDING");
+        order.setPaymentStatus(PaymentStatus.PENDING);
 
-        order.setShippingAddress(request.getShippingAddress());
-        order.setShippingMethod(request.getShippingMethod());
-        order.setShippingFee(calcShippingFee(request.getShippingMethod()));
+        BuildResult result = buildOrderItems(request, order);
+        // Do NOT increment usedCount yet — coupon applied only after payment confirmation
+        applyPricing(order, result.subtotal, result.details, request.getCouponCode(), false);
 
-        double subtotal = 0.0;
-        List<OrderDetail> orderDetails = new ArrayList<>();
-
-        for (OrderItemRequest itemRequest : request.getItems()) {
-            Book book = bookRepository.findById(itemRequest.getBookId())
-                    .orElseThrow(() -> new IllegalArgumentException("Book not found: " + itemRequest.getBookId()));
-            if (book.getStock() < itemRequest.getQuantity()) {
-                throw new IllegalArgumentException("Không đủ hàng: " + book.getTitle());
-            }
-            subtotal += book.getPrice() * itemRequest.getQuantity();
-
-            OrderDetail detail = new OrderDetail();
-            detail.setOrder(order);
-            detail.setBook(book);
-            detail.setQuantity(itemRequest.getQuantity());
-            detail.setPrice(book.getPrice());
-            orderDetails.add(detail);
-        }
-
-        // Xử lý coupon
-        double discountAmount = 0;
-        if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
-            var coupon = couponRepository.findByCode(request.getCouponCode().trim().toUpperCase()).orElse(null);
-            if (coupon != null && coupon.isActive() && subtotal >= coupon.getMinOrderValue()) {
-                if ("PERCENT".equalsIgnoreCase(coupon.getDiscountType())) {
-                    discountAmount = subtotal * coupon.getDiscountValue() / 100.0;
-                    if (coupon.getMaxDiscount() > 0) discountAmount = Math.min(discountAmount, coupon.getMaxDiscount());
-                } else {
-                    discountAmount = coupon.getDiscountValue();
-                }
-                discountAmount = Math.min(discountAmount, subtotal);
-                order.setCouponCode(coupon.getCode());
-            }
-        }
-
-        order.setSubtotal(subtotal);
-        order.setDiscountAmount(discountAmount);
-        order.setTotalAmount(subtotal + order.getShippingFee() - discountAmount);
-        order.setOrderDetails(orderDetails);
-
-        Order savedOrder = orderRepository.save(order);
-        savedOrder.setVnpayTxnRef(savedOrder.getId() + "_" + System.currentTimeMillis());
-        return orderRepository.save(savedOrder);
+        Order saved = orderRepository.save(order);
+        saved.setVnpayTxnRef(saved.getId() + "_" + System.currentTimeMillis());
+        return orderRepository.save(saved);
     }
 
-    /** VNPay callback thành công: xác thực dữ liệu và cập nhật đúng một lần. */
+    // ─── VNPay callback ───────────────────────────────────────────
+
+    /** Confirms payment: deducts stock and marks coupon used — exactly once (idempotent). */
     @Override
     @Transactional
     public boolean confirmPayment(Long orderId, String txnRef, long paidAmount) {
@@ -267,18 +106,23 @@ public class OrderServiceImpl implements OrderService {
 
         validatePaymentIdentity(order, txnRef);
 
-        if ("PAID".equals(order.getPaymentStatus())) {
-            return false;
+        if (PaymentStatus.PAID.equals(order.getPaymentStatus())) {
+            return false; // Already processed — idempotent
         }
-        if (!"PENDING".equals(order.getPaymentStatus())) {
+        if (!PaymentStatus.PENDING.equals(order.getPaymentStatus())) {
             throw new IllegalArgumentException("Order is not awaiting payment");
         }
 
-        long expectedAmount = Math.round(order.getTotalAmount() * 100);
+        // VNPay sends amount × 100; convert back to compare
+        long expectedAmount = order.getTotalAmount()
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValueExact();
         if (paidAmount != expectedAmount) {
             throw new IllegalArgumentException("Payment amount does not match order total");
         }
 
+        // Pessimistic-lock each book before deducting stock
         List<Book> lockedBooks = new ArrayList<>();
         if (order.getOrderDetails() != null) {
             for (OrderDetail detail : order.getOrderDetails()) {
@@ -299,6 +143,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+        // Mark coupon as used (only on successful payment)
         if (order.getCouponCode() != null) {
             couponRepository.findByCodeForUpdate(order.getCouponCode()).ifPresent(coupon -> {
                 coupon.setUsedCount(coupon.getUsedCount() + 1);
@@ -306,8 +151,8 @@ public class OrderServiceImpl implements OrderService {
             });
         }
 
-        order.setPaymentStatus("PAID");
-        order.setStatus("Processing");
+        order.setPaymentStatus(PaymentStatus.PAID);
+        order.setStatus(OrderStatus.Processing);
         orderRepository.save(order);
         emailService.sendOrderConfirmationEmail(order.getUser(), order);
         return true;
@@ -320,16 +165,188 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
         validatePaymentIdentity(order, txnRef);
-        if ("PAID".equals(order.getPaymentStatus()) || "FAILED".equals(order.getPaymentStatus())) {
-            return;
+        if (PaymentStatus.PAID.equals(order.getPaymentStatus())
+                || PaymentStatus.FAILED.equals(order.getPaymentStatus())) {
+            return; // Already in a terminal state
         }
-        if (!"PENDING".equals(order.getPaymentStatus())) {
+        if (!PaymentStatus.PENDING.equals(order.getPaymentStatus())) {
             throw new IllegalArgumentException("Order is not awaiting payment");
         }
 
-        order.setPaymentStatus("FAILED");
-        order.setStatus("Cancelled");
+        order.setPaymentStatus(PaymentStatus.FAILED);
+        order.setStatus(OrderStatus.Cancelled);
         orderRepository.save(order);
+    }
+
+    // ─── Queries ──────────────────────────────────────────────────
+
+    @Override
+    public List<OrderHistoryResponse> getMyOrderHistory(String username) {
+        return orderRepository.findByUserUsername(username).stream().map(order -> {
+            OrderHistoryResponse response = new OrderHistoryResponse();
+            response.setId(order.getId());
+            response.setOrderDate(order.getOrderDate());
+            response.setTotalAmount(order.getTotalAmount());
+            response.setStatus(order.getStatus() != null ? order.getStatus().name() : null);
+            response.setItems(order.getOrderDetails().stream()
+                    .map(d -> new OrderItemResponse(d.getBook().getTitle(), d.getQuantity(), d.getPrice()))
+                    .toList());
+            return response;
+        }).toList();
+    }
+
+    @Override
+    public Page<AdminOrderResponse> getAllOrdersForAdmin(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderDate"));
+        return orderRepository.findAll(pageable).map(order -> {
+            AdminOrderResponse dto = new AdminOrderResponse();
+            dto.setId(order.getId());
+            dto.setOrderDate(order.getOrderDate());
+            dto.setStatus(order.getStatus() != null ? order.getStatus().name() : null);
+            dto.setUsername(order.getUser() != null ? order.getUser().getUsername() : "N/A");
+            dto.setEmail(order.getUser() != null ? order.getUser().getEmail() : "N/A");
+            dto.setShippingAddress(order.getShippingAddress());
+            dto.setShippingMethod(order.getShippingMethod());
+            dto.setCouponCode(order.getCouponCode());
+            dto.setSubtotal(order.getSubtotal());
+            dto.setDiscountAmount(order.getDiscountAmount());
+            dto.setShippingFee(order.getShippingFee());
+            dto.setTotalAmount(order.getTotalAmount());
+            if (order.getOrderDetails() != null) {
+                dto.setItems(order.getOrderDetails().stream()
+                        .map(d -> new OrderItemResponse(
+                                d.getBook() != null ? d.getBook().getTitle() : "N/A",
+                                d.getQuantity(),
+                                d.getPrice()))
+                        .toList());
+            }
+            return dto;
+        });
+    }
+
+    @Override
+    public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+    }
+
+    @Override
+    public String getOrderOwnerUsername(Long orderId) {
+        return orderRepository.findById(orderId)
+                .map(o -> o.getUser() != null ? o.getUser().getUsername() : null)
+                .orElse(null);
+    }
+
+    // ─── Private helpers (DRY) ────────────────────────────────────
+
+    private User findUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+    }
+
+    private Order initOrder(User user, OrderRequest request) {
+        Order order = new Order();
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.Pending);
+        order.setShippingAddress(request.getShippingAddress());
+        order.setShippingMethod(request.getShippingMethod());
+        order.setShippingFee(calcShippingFee(request.getShippingMethod()));
+        return order;
+    }
+
+    /**
+     * Validates stock, builds {@link OrderDetail} list, and computes the subtotal.
+     * Does NOT deduct stock — caller decides when/whether to deduct.
+     */
+    private BuildResult buildOrderItems(OrderRequest request, Order order) {
+        BigDecimal subtotal = BigDecimal.ZERO;
+        List<OrderDetail> details = new ArrayList<>();
+
+        for (OrderItemRequest itemRequest : request.getItems()) {
+            Book book = bookRepository.findById(itemRequest.getBookId())
+                    .orElseThrow(() -> new IllegalArgumentException("Book not found: " + itemRequest.getBookId()));
+
+            if (book.getStock() < itemRequest.getQuantity()) {
+                throw new IllegalArgumentException("Không đủ hàng: " + book.getTitle());
+            }
+
+            subtotal = subtotal.add(book.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
+
+            OrderDetail detail = new OrderDetail();
+            detail.setOrder(order);
+            detail.setBook(book);
+            detail.setQuantity(itemRequest.getQuantity());
+            detail.setPrice(book.getPrice());
+            details.add(detail);
+        }
+        return new BuildResult(subtotal, details);
+    }
+
+    /**
+     * Applies coupon discount, sets all monetary fields, and attaches details to the order.
+     *
+     * @param deductStockAndMarkCoupon {@code true} for COD (immediate), {@code false} for VNPay pending.
+     */
+    private void applyPricing(Order order,
+                               BigDecimal subtotal,
+                               List<OrderDetail> details,
+                               String couponCode,
+                               boolean deductStockAndMarkCoupon) {
+        // Deduct stock immediately only for COD orders
+        if (deductStockAndMarkCoupon) {
+            for (OrderDetail detail : details) {
+                Book book = detail.getBook();
+                book.setStock(book.getStock() - detail.getQuantity());
+                book.setSoldCount((book.getSoldCount() == null ? 0 : book.getSoldCount()) + detail.getQuantity());
+                bookRepository.save(book);
+            }
+        }
+
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        if (couponCode != null && !couponCode.isBlank()) {
+            Coupon coupon = couponRepository.findByCode(couponCode.trim().toUpperCase()).orElse(null);
+            if (coupon != null && coupon.isActive()
+                    && subtotal.compareTo(coupon.getMinOrderValue()) >= 0) {
+                discountAmount = calcDiscount(coupon, subtotal);
+                if (deductStockAndMarkCoupon) {
+                    coupon.setUsedCount(coupon.getUsedCount() + 1);
+                    couponRepository.save(coupon);
+                }
+                order.setCouponCode(coupon.getCode());
+            }
+        }
+
+        order.setSubtotal(subtotal);
+        order.setDiscountAmount(discountAmount);
+        order.setTotalAmount(subtotal.add(order.getShippingFee()).subtract(discountAmount));
+        order.setOrderDetails(details);
+    }
+
+    /** Calculates the actual discount amount for a coupon against the given subtotal. */
+    private BigDecimal calcDiscount(Coupon coupon, BigDecimal subtotal) {
+        BigDecimal discount;
+        if ("PERCENT".equalsIgnoreCase(coupon.getDiscountType())) {
+            discount = subtotal.multiply(coupon.getDiscountValue())
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            if (coupon.getMaxDiscount().compareTo(BigDecimal.ZERO) > 0) {
+                discount = discount.min(coupon.getMaxDiscount());
+            }
+        } else {
+            discount = coupon.getDiscountValue();
+        }
+        return discount.min(subtotal);
+    }
+
+    private BigDecimal calcShippingFee(String method) {
+        if (method == null) return BigDecimal.ZERO;
+        return switch (method.toUpperCase()) {
+            case "EXPRESS"  -> BigDecimal.valueOf(20_000);
+            case "SAME_DAY" -> BigDecimal.valueOf(50_000);
+            default         -> BigDecimal.ZERO; // STANDARD = free
+        };
     }
 
     private void validatePaymentIdentity(Order order, String txnRef) {
@@ -340,11 +357,7 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Payment reference does not match order");
         }
     }
-    /** Lấy username của chủ đơn (dùng cho notification) */
-    @Override
-    public String getOrderOwnerUsername(Long orderId) {
-        return orderRepository.findById(orderId)
-                .map(o -> o.getUser() != null ? o.getUser().getUsername() : null)
-                .orElse(null);
-    }
+
+    /** Value-carrier returned by {@link #buildOrderItems}. */
+    private record BuildResult(BigDecimal subtotal, List<OrderDetail> details) {}
 }
