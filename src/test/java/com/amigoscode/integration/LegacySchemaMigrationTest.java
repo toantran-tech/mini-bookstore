@@ -47,6 +47,8 @@ class LegacySchemaMigrationTest extends MySqlContainerTest {
             assertThat(columnExists(statement, "orders", "payment_status")).isTrue();
             assertThat(tableExists(statement, "refresh_tokens")).isTrue();
             assertThat(tableExists(statement, "user_favorite_books")).isTrue();
+            assertThat(columnExists(statement, "user_favorite_books", "user_id")).isTrue();
+            assertThat(columnExists(statement, "user_favorite_books", "book_id")).isTrue();
         }
     }
 

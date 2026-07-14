@@ -50,8 +50,5 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 CREATE TABLE IF NOT EXISTS user_favorite_books (
     user_id BIGINT NOT NULL,
     book_id BIGINT NOT NULL,
-    CONSTRAINT fk_favorite_books_user
-        FOREIGN KEY (user_id) REFERENCES users (id),
-    CONSTRAINT fk_favorite_books_book
-        FOREIGN KEY (book_id) REFERENCES book (id)
+    PRIMARY KEY (user_id, book_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
