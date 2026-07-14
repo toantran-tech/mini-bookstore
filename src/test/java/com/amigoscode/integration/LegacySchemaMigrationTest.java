@@ -8,10 +8,23 @@ import java.sql.Statement;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.amigoscode.support.MySqlContainerTest;
+/**
+ * Verifies that Flyway can migrate a pre-existing (legacy) schema to the current version.
+ * Uses its own isolated MySQL container so that the schema pre-seeding done here
+ * does not pollute the shared container used by CriticalFlowsIntegrationTest.
+ */
+@Testcontainers
+class LegacySchemaMigrationTest {
 
-class LegacySchemaMigrationTest extends MySqlContainerTest {
+    @Container
+    private static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.0.42")
+            .withDatabaseName("legacy_test")
+            .withUsername("test")
+            .withPassword("test");
 
     @Test
     void migratesPreFlywaySchemaToCurrentVersion() throws Exception {
